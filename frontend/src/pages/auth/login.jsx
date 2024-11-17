@@ -27,8 +27,8 @@ function AuthLogin() {
           });
         } else {
           toast({
-            title: data?.payload?.message,
             variant: "destructive",
+            title: data?.payload?.message,
           });
         } 
 

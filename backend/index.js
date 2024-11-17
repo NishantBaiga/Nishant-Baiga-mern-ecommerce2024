@@ -31,6 +31,10 @@ import adminProductsRouter from "./routes/admin/products.route.js";
 //admin routes
 app.use("/api/admin/products", adminProductsRouter)
 
+import shopProductsRouter from "./routes/shop/products.route.js";
+//shop routes   
+app.use("/api/shop/products", shopProductsRouter);
+
 
 app.listen(PORT, () => {
     connectDB();

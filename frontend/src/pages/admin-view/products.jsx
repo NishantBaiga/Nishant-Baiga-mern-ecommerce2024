@@ -85,7 +85,11 @@ function AdminProducts() {
           image: uploadedImageUrl,
         })
       ).then((data) => {
+        console.log("thunk dispatched");
+        
         if (data?.payload?.success) {
+          console.log("data.payload.success");
+          
           dispatch(fetchAllProducts()); // Refresh product list after adding
           setOpenCreateProductsDialog(false); // Close dialog
           setImageFile(null); // Clear selected image
@@ -120,7 +124,11 @@ function AdminProducts() {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
-  console.log( formData,productList, uploadedImageUrl,);
+  console.log( 
+    //formData,"formData",
+    productList,"productList", 
+  //  uploadedImageUrl
+  );
 
   return (
     <Fragment>

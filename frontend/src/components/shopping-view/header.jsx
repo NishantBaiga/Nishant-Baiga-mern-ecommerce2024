@@ -49,8 +49,8 @@ function HeaderRightContent() {
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
       {/* user cart */}
-      <Button variant="outline" size="icon" className="mt-3">
-        <ShoppingCart className="h-6 w-6 bg-white text-black " />
+      <Button variant="outline" size="icon" className="mt-3 h-8 w-8 ">
+        <ShoppingCart  />
         <span className="sr-only">user cart</span>
       </Button>
       {/* user profile */}
@@ -88,7 +88,7 @@ const ShoppingHeader = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   return (
-    <header className="sticky top-0 z-40 w-full  border-b bg-background">
+    <header className="sticky top-0 z-40 w-full  border-b bg-background  shadow-md">
       <div className="flex h-16 item-center  justify-between px-4 md:px-6 ">
         {/* logo */}
         <Link to="/shop/home" className="flex items-center gap-2">

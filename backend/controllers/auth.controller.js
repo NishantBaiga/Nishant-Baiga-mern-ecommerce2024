@@ -41,8 +41,12 @@ const Login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    if (!email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!email ) {
+      return res.status(400).json({ message: "email is required" });
+    }
+    
+    if (!password) {
+      return res.status(400).json({ message: "password is required" });
     }
 
     const user = await User.findOne({ email }).exec();
@@ -80,7 +84,7 @@ const Login = async (req, res) => {
       })
       .status(201)
       .json({
-        message: `New user logged in successfully`,
+        message: `New User logged in successfully`,
         success: true,
         user: {
           email: user.email,
