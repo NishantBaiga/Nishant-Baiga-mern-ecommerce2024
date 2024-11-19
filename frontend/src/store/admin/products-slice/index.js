@@ -9,59 +9,98 @@ const initialState = {
 export const addNewProduct = createAsyncThunk(
   "/products/addnewproduct",
   async (FormData) => {
-
-    const result = await axios.post(
-      "http://localhost:3000/api/admin/products/add",
-      FormData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      if (!FormData) {
+        console.log("formData is null in addNewProduct thunk");
+        return res
+          .status(400)
+          .json({ message: "Form data is required in addNewProduct thunk" });
       }
-    );
 
-    // console.log(result,"addnewproduct result");
-    return result?.data;
+      const result = await axios.post(
+        "http://localhost:3000/api/admin/products/add",
+        FormData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(result, "addnewproduct thunk result");
+      return result?.data;
+    } catch (error) {
+      console.log(error, "error in addNewProduct thunk");
+      res.status(500).json({ message: error.message, success: false });
+    }
   }
 );
 
 export const fetchAllProducts = createAsyncThunk(
   "/products/fetchallproducts",
   async () => {
-    const result = await axios.get(
-      "http://localhost:3000/api/admin/products/get"
-    );
-
-    console.log(result, "fetchallproducts result");
-    
-    return result?.data;
+    try {
+      const result = await axios.get(
+        "http://localhost:3000/api/admin/products/get"
+      );
+      console.log(result, "fetchallproducts thunk result");
+      return result?.data;
+    } catch (error) {
+      console.log(error, "error in fetchAllProducts thunk");
+      res.status(500).json({ message: error.message, success: false });
+    }
   }
 );
 
 export const editProduct = createAsyncThunk(
   "/products/editproduct",
   async ({ id, formData }) => {
-    const result = await axios.put(
-      `http://localhost:3000/api/admin/products/edit/${id}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      if (!id) {
+        console.log("id is null in editProduct thunk");
+        return res.status(400).json({ message: "Product ID is required" });
       }
-    );
-    return result?.data;
+
+      if (!formData) {
+        console.log("formData is null in editProduct thunk");
+        return res.status(400).json({ message: "Form data is required" });
+      }
+
+      const result = await axios.put(
+        `http://localhost:3000/api/admin/products/edit/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(result, "editProduct thunk result");
+      return result?.data;
+    } catch (error) {
+      console.log(error, "error in editProduct thunk");
+      res.status(500).json({ message: error.message, success: false });
+    }
   }
 );
 
 export const deleteProduct = createAsyncThunk(
   "/products/deleteProduct",
   async (id) => {
-    const result = await axios.delete(
-      `http://localhost:3000/api/admin/products/delete/${id}`
-    );
-
-    return result?.data;
+    try {
+      if (!id) {
+        console.log("id is null in deleteProduct thunk");
+        return res.status(400).json({ message: "Product ID is required" });
+      }
+      const result = await axios.delete(
+        `http://localhost:3000/api/admin/products/delete/${id}`
+      );
+      console.log(result, "deleteProduct thunk result");
+      return result?.data;
+    } catch (error) {
+      console.log(error, "error in deleteProduct thunk");
+      res.status(500).json({ message: error.message, success: false });
+    }
   }
 );
 
@@ -79,11 +118,11 @@ const AdminProductsSlice = createSlice({
         state.isLoading = false;
         // Optionally, add the new product to the state list
         state.productList.push(action.payload.data);
-        console.log(action.payload.data, "action.payload.data");
+       // console.log(action.payload.data, "action.payload.data");
       })
       .addCase(addNewProduct.rejected, (state, action) => {
         state.isLoading = false;
-        console.log("addNewProduct rejected", action.error);
+        //console.log("addNewProduct rejected", action.error);
       })
       .addCase(fetchAllProducts.pending, (state) => {
         state.isLoading = true;
@@ -92,12 +131,12 @@ const AdminProductsSlice = createSlice({
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.productList = action.payload.data;
-        console.log(action.payload.data, "action.payload.data");
+        //console.log(action.payload.data, "action.payload.data");
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.isLoading = false;
         state.productList = [];
-        console.log("fetchAllProducts rejected", action.error);
+        //console.log("fetchAllProducts rejected", action.error);
       });
   },
 });

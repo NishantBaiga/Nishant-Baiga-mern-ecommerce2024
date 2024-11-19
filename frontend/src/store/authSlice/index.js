@@ -9,55 +9,90 @@ const initialState = {
 
 // Thunk to handle user registration
 export const register = createAsyncThunk("auth/register", async (formData) => {
-  const response = await axios.post(
-    "http://localhost:3000/api/auth/register",
-    formData, // Data passed to the registration request (name, email, password)
-    { withCredentials: true } // Ensures cookies are included for authentication
-  );
-  return response.data; 
+  try {
+    if (!formData) {
+      console.log("formData is null in register thunk");
+      return res
+        .status(400)
+        .json({ message: "Form data is required in register thunk" });
+    }
+    const response = await axios.post(
+      "http://localhost:3000/api/auth/register",
+      formData, // Data passed to the registration request (name, email, password)
+      { withCredentials: true } // Ensures cookies are included for authentication
+    );
+    console.log(response, "register thunk response");
+    return response.data;
+  } catch (error) {
+    console.log(error, "error in register thunk");
+    res.status(500).json({ message: error.message, success: false });
+  }
 });
 
 // Thunk to handle user login
 export const login = createAsyncThunk("auth/login", async (formData) => {
   console.log(formData);
-  
-  const response = await axios.post(
-    "http://localhost:3000/api/auth/login",
-    formData, // Data passed to the login request (email, password)
-    { withCredentials: true } // Ensures cookies are included for authentication
-  );
-  return response.data;
+  try {
+    if (!formData) {
+      console.log("formData is null in login thunk");
+      return res
+        .status(400)
+        .json({ message: "Form data is required in login thunk" });
+    }
+
+    const response = await axios.post(
+      "http://localhost:3000/api/auth/login",
+      formData, // Data passed to the login request (email, password)
+      { withCredentials: true } // Ensures cookies are included for authentication
+    );
+    console.log(response, "login thunk response");
+    return response.data;
+  } catch (error) {
+    console.log(error, "error in login thunk");
+    res.status(500).json({ message: error.message, success: false });
+  }
 });
 
 // Thunk to handle user logout
 export const logoutUser = createAsyncThunk("/auth/logout", async () => {
-  const response = await axios.post(
-    "http://localhost:3000/api/auth/logout",
-    {}, // Empty payload for the logout request
-    { withCredentials: true } // Ensures cookies are included for session termination
-  );
-  return response.data; 
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/api/auth/logout",
+      {}, // Empty payload for the logout request
+      { withCredentials: true } // Ensures cookies are included for session termination
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error, "error in logout thunk");
+    res.status(500).json({ message: error.message, success: false });
+  }
 });
 
 // Thunk to check if the user is authenticated
 export const checkAuth = createAsyncThunk("/auth/checkauth", async () => {
-  const response = await axios.get(
-    "http://localhost:3000/api/auth/check-auth",
-    {
-      withCredentials: true, // Ensures cookies are included to verify session
-      headers: {
-        "Cache-Control":
-          "no-store, no-cache, must-revalidate, proxy-revalidate", // Prevents caching to always get the latest status
-      },
-    }
-  );
-  return response.data; 
+  try {
+    const response = await axios.get(
+      "http://localhost:3000/api/auth/check-auth",
+      {
+        withCredentials: true, // Ensures cookies are included to verify session
+        headers: {
+          "Cache-Control":
+            "no-store, no-cache, must-revalidate, proxy-revalidate", // Prevents caching to always get the latest status
+        },
+      }
+    );
+    console.log(response, "checkAuth thunk response");
+    return response.data;
+  } catch (error) {
+    console.log(error, "error in checkAuth thunk");
+    res.status(500).json({ message: error.message, success: false });
+  }
 });
 
 // Create the auth slice
 const authslice = createSlice({
-  name: "auth", // Name of the slice
-  initialState, // Initial state defined earlier
+  name: "auth", 
+  initialState, 
   reducers: {
     // Reducer to manually set the user (if needed for external operations)
     setUser: (state, action) => {
@@ -84,22 +119,20 @@ const authslice = createSlice({
 
       // Handling login
       .addCase(login.pending, (state) => {
-        state.isLoading = true; 
+        state.isLoading = true;
         console.log("login pending");
-        
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.isLoading = false; 
-        state.user = action.payload.success ? action.payload.user : null; 
-        state.isAuthenticated = action.payload.success; 
+        state.isLoading = false;
+        state.user = action.payload.success ? action.payload.user : null;
+        state.isAuthenticated = action.payload.success;
         console.log("login fulfilled", action.payload);
-        
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = false; // Set authenticated to false on login failure
         state.user = null; // Clear any user data
-        console.log("login rejected", action.error);
+        //console.log("login rejected", action.error);
       })
 
       // Handling authentication check
@@ -107,7 +140,7 @@ const authslice = createSlice({
         state.isLoading = true; // Set loading to true when the checkAuth request starts
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
-        state.isLoading = false; 
+        state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null; // Set user if authenticated, else null
         state.isAuthenticated = action.payload.success; // Set authentication state based on response
       })
