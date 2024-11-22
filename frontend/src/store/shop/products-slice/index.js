@@ -5,6 +5,7 @@ const initialState = {
   isLoading: false,
   productList: [],
   productDetails: null,
+  error: null,
 };
 
 export const fetchAllFilteredProducts = createAsyncThunk(
@@ -19,6 +20,13 @@ export const fetchAllFilteredProducts = createAsyncThunk(
     if (!sortParams) {
       return res.status(400).json({ message: "Sort params are required in fetch all filtered products thunk" });
     }
+
+    console.log(
+      filterParams,
+      sortParams,
+      "fetch all filtered products thunk inputs"
+    );
+    
 
    try {
     const query = new URLSearchParams({
@@ -43,21 +51,23 @@ export const fetchProductDetails = createAsyncThunk(
   "/products/fetchProductDetails ",
   async (id) => {
    //console.log(id, "id");
-   if (!id) {
-    return res.status(400).json({ message: "Product ID is required" });
-   }
-
-    try {   
+ 
+    try {  
+      if (!id) {
+        return res.status(400).json({ message: "Product ID is required" });
+       }else{
+         console.log(id, "id", typeof id);
+       }
+     
     const result = await axios.get(
       `http://localhost:3000/api/shop/products/get/${id}`
     );
 
-    console.log(result,"fetchProductDetails result");
+    console.log("fetchProductDetails result:" ,result);
     return result?.data;
     } catch (error) {
       console.log(error, "error in fetchProductDetails thunk");
        res.status(500).json({ message: error.message, success: false });
-      
     }
   }
 );
@@ -65,22 +75,30 @@ export const fetchProductDetails = createAsyncThunk(
 const shopProductSlice = createSlice({
   name: "shoppingProducts",
   initialState,
-  reducers: {},
+  reducers: {
+    setProductDetails: (state, action) => {
+      state.productDetails = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAllFilteredProducts.pending, (state) => {
         state.isLoading = true;
-        console.log("fetchAllFilteredProducts pending");
+        state.error = null;
+        console.log("fetchAllFilteredProducts pending :", action.payload, action.error);
       })
       .addCase(fetchAllFilteredProducts.fulfilled, (state, action) => {
         //console.log(action.payload.data, "action.payload.data");
         state.isLoading = false;
+        state.error = null;
         state.productList = action.payload.data;
       })
       .addCase(fetchAllFilteredProducts.rejected, (state, action) => {
         state.isLoading = false;
         state.productList = [];
-       // console.log(action.error, "fetchAllFilteredProducts rejected");
+      state.error= action?.payload?.message || "Something went wrong";
+        state.error = true;
+       console.log( "fetchAllFilteredProducts rejected :",action.payload,action.error);
       })
       .addCase(fetchProductDetails.pending, (state, action) => {
         state.isLoading = true;
@@ -94,9 +112,12 @@ const shopProductSlice = createSlice({
       .addCase(fetchProductDetails.rejected, (state, action) => {
         state.isLoading = false;
         state.productDetails = null;
-        //console.log(action.error, "fetchProductDetails rejected");
+        console.log("fetchProductDetails rejected :",action.payload,action.error, );
       });
   },
 });
+
+
+export const { setProductDetails } = shopProductSlice.actions;  
 
 export default shopProductSlice.reducer;

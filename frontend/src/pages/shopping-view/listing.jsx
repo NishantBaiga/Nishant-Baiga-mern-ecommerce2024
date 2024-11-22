@@ -10,11 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { sortOptions } from "@/config";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { fetchAllFilteredProducts, fetchProductDetails } from "@/store/shop/products-slice";
 import { ArrowUpDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector,  } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 function createSearchParamsHelper(filterParams) {
   let queryParams = [];
@@ -41,6 +43,12 @@ const ShoppingListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+
+  const {user} = useSelector((state) => state.auth);
+
+  const{toast}= useToast();
+
+  
   const handleSort = (value) => {
     setsort(value);
   };
@@ -74,6 +82,20 @@ const ShoppingListing = () => {
   }
   
 
+  function handleAddToCart(getCurrentProductId) {
+    //console.log(getCurrentProductId, "getCurrentProductId");
+    
+    dispatch(addToCart({ userId:user?.id, productId: getCurrentProductId, quantity:1})).then((data) => {
+     if (data?.payload?.success) {
+      dispatch(fetchCartItems(user?.id));
+      toast({
+        title: data?.payload?.message,
+        className: "bg-white text-black",
+      })
+     }
+    });
+  }
+
   // run once to set initial state
   useEffect(() => {
     setsort("price-lowtohigh");
@@ -98,11 +120,15 @@ const ShoppingListing = () => {
       );
   }, [dispatch, sort, filter]);
 
+  // run when product details changes
   useEffect(() => {
     if (productDetails !== null) {
       setOpenDetailsDialog(true);
     }
   }, [productDetails]);
+
+
+
 
   // console.log(productList, "productList");
   //console.log("filter", filter);
@@ -110,6 +136,7 @@ const ShoppingListing = () => {
  // console.log(searchParams, "searchParams");
 
 //console.log(productDetails, "productDetails");
+
  
 
   return (
@@ -161,6 +188,7 @@ const ShoppingListing = () => {
                   key={productItem._id}
                   product={productItem}
                   handleGetProductDetails={handleGetProductDetails}
+                  handleAddToCart={handleAddToCart}
                 />
               ))
             : null}

@@ -5,14 +5,44 @@ import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { StarIcon } from "lucide-react";
 import { Input } from "../ui/input";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, fetchCartItems,  } from "@/store/shop/cart-slice";
+import { useToast } from "@/hooks/use-toast";
+import { setProductDetails } from "@/store/shop/products-slice";
 
 const ProductDetails = ({ open, setOpen, ProductDetails }) => {
   console.log(ProductDetails, "ProductDetails");
   // console.log(open, "open");
   // console.log(setOpen, "setOpen");
 
+  const dispatch = useDispatch();
+
+  const {user} = useSelector((state) => state.auth);
+
+  const {toast}= useToast();
+
+  
+  function handleAddToCart(getCurrentProductId) {
+    //console.log(getCurrentProductId, "getCurrentProductId");
+    
+    dispatch(addToCart({ userId:user?.id, productId: getCurrentProductId, quantity:1})).then((data) => {
+     if (data?.payload?.success) {
+      dispatch(fetchCartItems(user?.id));
+      toast({
+        title: data?.payload?.message,
+        className: "bg-white text-black",
+      })
+     }
+    });
+  }
+
+  function handleDialogClose() {
+    setOpen(false);
+    dispatch(setProductDetails());
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className=" grid grid-cols-2 gap-8 sm:p-12 max-w-[90vw] sm:maw-w-[80vw lg:max-w-[70vw] bg-slate-200 shadow-lg">
         <div className=" relative overflow-hidden  ">
           <img
@@ -62,7 +92,7 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
           </div>
 
           <div className="mt-5 mb-5">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={()=>handleAddToCart(ProductDetails?._id)}>
               Add To Cart
             </Button>
           </div>

@@ -35,6 +35,9 @@ import shopProductsRouter from "./routes/shop/products.route.js";
 //shop routes   
 app.use("/api/shop/products", shopProductsRouter);
 
+import shopCartRouter from "./routes/shop/cart.route.js";
+//shop routes   
+app.use("/api/shop/cart", shopCartRouter);
 
 app.listen(PORT, () => {
     connectDB();
