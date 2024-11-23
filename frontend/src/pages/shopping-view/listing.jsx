@@ -11,10 +11,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { sortOptions } from "@/config";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { fetchAllFilteredProducts, fetchProductDetails } from "@/store/shop/products-slice";
+import {
+  fetchAllFilteredProducts,
+  fetchProductDetails,
+} from "@/store/shop/products-slice";
 import { ArrowUpDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector,  } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -32,32 +35,31 @@ function createSearchParamsHelper(filterParams) {
   return queryParams.join("&");
 }
 
-
 const ShoppingListing = () => {
   const dispatch = useDispatch();
-  const { productList, productDetails } = useSelector((state) => state.shopProducts);
+  const { productList, productDetails } = useSelector(
+    (state) => state.shopProducts
+  );
 
-  const [filter, setfilter] = useState({});
+  const [filters, setfilters] = useState({});
   const [sort, setsort] = useState(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
-  const {user} = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
-  const{toast}= useToast();
+  const { toast } = useToast();
 
-  
   const handleSort = (value) => {
     setsort(value);
   };
 
   const handleFilter = (getSectionId, getCurrentOptions) => {
-    let copyFilter = { ...filter };
-
-    const indexOfCurrentOption = Object.keys(copyFilter).indexOf(getSectionId);
-    if (indexOfCurrentOption === -1) {
+    let copyFilter = { ...filters };
+    const indexOfCurrentSection = Object.keys(copyFilter).indexOf(getSectionId);
+    if (indexOfCurrentSection === -1) {
       copyFilter = {
         ...copyFilter,
         [getSectionId]: [getCurrentOptions],
@@ -71,54 +73,58 @@ const ShoppingListing = () => {
         copyFilter[getSectionId].splice(indexOfCurrentOption, 1);
       }
     }
-
-    setfilter(copyFilter);
-    sessionStorage.setItem("filter", JSON.stringify(copyFilter));
+    setfilters(copyFilter);
+    sessionStorage.setItem("filters", JSON.stringify(copyFilter));
   };
 
   function handleGetProductDetails(getCurrentProductId) {
-   // console.log(getCurrentProductId, "getCurrentProductId");
-    dispatch(fetchProductDetails(getCurrentProductId)); 
+    // console.log(getCurrentProductId, "getCurrentProductId");
+    dispatch(fetchProductDetails(getCurrentProductId));
   }
-  
 
   function handleAddToCart(getCurrentProductId) {
     //console.log(getCurrentProductId, "getCurrentProductId");
-    
-    dispatch(addToCart({ userId:user?.id, productId: getCurrentProductId, quantity:1})).then((data) => {
-     if (data?.payload?.success) {
-      dispatch(fetchCartItems(user?.id));
-      toast({
-        title: data?.payload?.message,
-        className: "bg-white text-black",
+
+    dispatch(
+      addToCart({
+        userId: user?.id,
+        productId: getCurrentProductId,
+        quantity: 1,
       })
-     }
+    ).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchCartItems(user?.id));
+        toast({
+          title: data?.payload?.message,
+          className: "bg-white text-black",
+        });
+      }
     });
   }
 
   // run once to set initial state
   useEffect(() => {
     setsort("price-lowtohigh");
-    setfilter(JSON.parse(sessionStorage.getItem("filter")) || {});
+    setfilters(JSON.parse(sessionStorage.getItem("filters")) || {});
   }, []);
 
   // run when filter changes
   useEffect(() => {
-    if (filter && Object.keys(filter).length > 0) {
-      const createQueryString = createSearchParamsHelper(filter);
+    if (filters && Object.keys(filters).length > 0) {
+      const createQueryString = createSearchParamsHelper(filters);
       setSearchParams(new URLSearchParams(createQueryString));
     } else {
       setSearchParams({});
     }
-  }, [filter]);
+  }, [filters]);
 
-  // run when either filter or sort changes
+  // run when either filter or sort changes fetch products
   useEffect(() => {
-    if (filter !== null && sort !== null)
+    if (filters !== null && sort !== null)
       dispatch(
-        fetchAllFilteredProducts({ filterParams : filter, sortParams : sort })
+        fetchAllFilteredProducts({ filterParams: filters, sortParams: sort })
       );
-  }, [dispatch, sort, filter]);
+  }, [dispatch, sort, filters]);
 
   // run when product details changes
   useEffect(() => {
@@ -127,22 +133,17 @@ const ShoppingListing = () => {
     }
   }, [productDetails]);
 
-
-
-
-  // console.log(productList, "productList");
-  //console.log("filter", filter);
+  console.log(productList, "productList");
+  //console.log("filter", filters);
   //console.log("sort", sort);
- // console.log(searchParams, "searchParams");
+  // console.log(searchParams, "searchParams");
 
-//console.log(productDetails, "productDetails");
-
- 
+  //console.log(productDetails, "productDetails");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[135px_1fr] gap-6 p-4 md:p-6 ">
       {/* filters */}
-      <ProductFilter handleFilter={handleFilter} filters={filter} />
+      <ProductFilter handleFilter={handleFilter} filters={filters} />
 
       {/* sort and products */}
       <div className="bg-background rounded-lg w-full shadow-md">
@@ -161,6 +162,9 @@ const ShoppingListing = () => {
                   <span className="ml-1">Sort By</span>
                 </Button>
               </DropdownMenuTrigger>
+
+
+              {/* sort options */}
               <DropdownMenuContent
                 align="end"
                 className="w-[200px] bg-white shadow-sm"
@@ -196,7 +200,11 @@ const ShoppingListing = () => {
       </div>
 
       {/* product details */}
-      <ProductDetails open={openDetailsDialog} setOpen={setOpenDetailsDialog} ProductDetails={productDetails} />
+      <ProductDetails
+        open={openDetailsDialog}
+        setOpen={setOpenDetailsDialog}
+        ProductDetails={productDetails}
+      />
     </div>
   );
 };

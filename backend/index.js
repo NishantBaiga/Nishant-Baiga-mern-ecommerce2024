@@ -39,6 +39,10 @@ import shopCartRouter from "./routes/shop/cart.route.js";
 //shop routes   
 app.use("/api/shop/cart", shopCartRouter);
 
+import shopAddressRouter from "./routes/shop/address.route.js";
+//shop routes   
+app.use("/api/shop/address", shopAddressRouter);
+
 app.listen(PORT, () => {
     connectDB();
     console.log(`server is running on port ${PORT}`);

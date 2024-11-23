@@ -205,7 +205,11 @@ const shoppingCartSlice = createSlice({
         state.isloading = false;
         (state.error = true),
           (state.error = action.payload?.message || "Something went wrong");
-        console.error("Add to cart rejectederror:", action.payload, action.error);
+        console.error(
+          "Add to cart rejectederror:",
+          action.payload,
+          action.error
+        );
       })
       .addCase(fetchCartItems.pending, (state) => {
         state.isloading = true;
@@ -213,14 +217,18 @@ const shoppingCartSlice = createSlice({
       })
       .addCase(fetchCartItems.fulfilled, (state, action) => {
         state.isloading = false;
-        state.cartItems = action.payload.data;
         state.error = null;
+        state.cartItems = action.payload.data;
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.isloading = false;
         (state.error = true),
           (state.error = action.payload?.message || "Something went wrong");
-        console.error("Fetch cart items rejected error:", action.payload, action.error);
+        console.error(
+          "Fetch cart items rejected error:",
+          action.payload,
+          action.error
+        );
       })
       .addCase(deleteCartItem.pending, (state) => {
         state.isloading = true;
@@ -228,8 +236,8 @@ const shoppingCartSlice = createSlice({
       })
       .addCase(deleteCartItem.fulfilled, (state, action) => {
         state.isloading = false;
-        state.cartItems = action.payload.data;
         state.error = null;
+        state.cartItems = action.payload.data;
       })
       .addCase(deleteCartItem.rejected, (state, action) => {
         state.isloading = false;
@@ -238,7 +246,11 @@ const shoppingCartSlice = createSlice({
             action.payload?.message ||
             action.error?.message ||
             "Something went wrong");
-        console.error("Delete cart item rejected error:", action.payload, action.error);
+        console.error(
+          "Delete cart item rejected error:",
+          action.payload,
+          action.error
+        );
       })
       .addCase(updateCartItems.pending, (state) => {
         state.isloading = true;
@@ -253,7 +265,11 @@ const shoppingCartSlice = createSlice({
         state.isloading = false;
         (state.error = true),
           (state.error = action.payload?.message || "Something went wrong");
-        console.error("Update cart item rejected error:", action.payload, action.error);
+        console.error(
+          "Update cart item rejected error:",
+          action.payload,
+          action.error
+        );
       });
   },
 });

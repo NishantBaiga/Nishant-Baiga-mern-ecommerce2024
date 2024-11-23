@@ -30,7 +30,9 @@ const ProductFilter = ({ filters, handleFilter }) => {
                       }
                       onCheckedChange={() => handleFilter(keyItem, option.id)}
                     />
-                    {option.label}
+
+                    <span>{option.label}</span>
+                    
                   </Label>
                 ))}
               </div>

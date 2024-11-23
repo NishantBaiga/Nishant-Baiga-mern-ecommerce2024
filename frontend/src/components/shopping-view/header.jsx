@@ -17,53 +17,76 @@ import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { logoutUser } from "@/store/authSlice";
 import UserCartWrapper from "./cart-wrapper";
 import { fetchCartItems } from "@/store/shop/cart-slice";
+import { Label } from "../ui/label";
 
 // Menu Items
 function MenuItems() {
+  const navigate = useNavigate();
+  function handleNavigate(getCurrentMenuItem) {
+    sessionStorage.removeItem("filters");
+    const currentFilter =
+      getCurrentMenuItem.id !== "home"
+        ? {
+            category: [getCurrentMenuItem.id],
+          }
+        : null;
+
+    sessionStorage.setItem("filters", JSON.stringify(currentFilter));
+    navigate(getCurrentMenuItem.path);
+  }
   return (
     <nav className="flex flex-col mt-5 mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row   ">
       {shoppingViewHeaderMenuItems.map((item) => (
-        <Link
-          to={item.path}
+        <Label
+          onClick={() => handleNavigate(item)}
           key={item.id}
-          className="text-sm font-medium text-muted-foreground"
+          className="text-lg font-medium text-muted-foreground cursor-pointer"
         >
           {item.label}
-        </Link>
+        </Label>
       ))}
     </nav>
   );
 }
 
-
-
 // Header Right Content
 function HeaderRightContent() {
-  const { user } = useSelector((state) => state.auth);// Get user data from the Redux store
+  const { user } = useSelector((state) => state.auth); // Get user data from the Redux store
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [openCartSheet, setOpenCartSheet] = useState(false);
-  const {cartItems}= useSelector((state) => state.shopCart);
+  const { cartItems } = useSelector((state) => state.shopCart);
 
   // Function to handle logout
   function handleLogout() {
     dispatch(logoutUser());
-  };
+  }
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(fetchCartItems(user?.id));
-  },[]);
+  }, []);
 
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
       {/* user cart */}
-    <Sheet open={openCartSheet} onOpenChange={()=>setOpenCartSheet(false)}>
-    <Button onClick={() => setOpenCartSheet(true)} variant="outline" size="icon" className="mt-3 h-8 w-8 ">
-        <ShoppingCart  />
-        <span className="sr-only">user cart</span>
-      </Button>
-      <UserCartWrapper cartItems={cartItems && cartItems.items && cartItems.items.length > 0 ? cartItems.items : []} />
-    </Sheet>
+      <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
+        <Button
+          onClick={() => setOpenCartSheet(true)}
+          variant="outline"
+          size="icon"
+          className="mt-3 h-8 w-8 "
+        >
+          <ShoppingCart />
+          <span className="sr-only">user cart</span>
+        </Button>
+        <UserCartWrapper
+          cartItems={
+            cartItems && cartItems.items && cartItems.items.length > 0
+              ? cartItems.items
+              : []
+          }
+        />
+      </Sheet>
       {/* user profile */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="mt-3">
@@ -125,17 +148,15 @@ const ShoppingHeader = () => {
             <HeaderRightContent />
           </SheetContent>
 
-
           {/* menu for desktop */}
           <div className="hidden lg:block">
             <MenuItems />
           </div>
-          
+
           {/* header right content for desktop */}
-            <div className="hidden lg:block">
-              <HeaderRightContent />
-            </div>
-          
+          <div className="hidden lg:block">
+            <HeaderRightContent />
+          </div>
         </Sheet>
       </div>
     </header>

@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { setProductDetails } from "@/store/shop/products-slice";
 
 const ProductDetails = ({ open, setOpen, ProductDetails }) => {
-  console.log(ProductDetails, "ProductDetails");
+  //console.log(ProductDetails, "ProductDetails");
   // console.log(open, "open");
   // console.log(setOpen, "setOpen");
 

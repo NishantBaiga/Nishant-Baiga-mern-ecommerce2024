@@ -12,7 +12,9 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
+import { useNavigate } from "react-router-dom";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: <ShirtIcon /> },
@@ -32,9 +34,12 @@ const brandsWithIcon = [
 ];
 const ShoppingHome = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isFadeOut, setIsFadeOut] = useState(false);
   const banners = [bannerOne, bannerTwo, bannerThree];
-
   const dispatch = useDispatch();
+  const {productList}= useSelector((state) => state.shopProducts);
+
+  const navigate = useNavigate();
 
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");
@@ -46,31 +51,50 @@ const ShoppingHome = () => {
     navigate(`/shop/listing`);
   }
 
-
-  
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+    setIsFadeOut(true);
+    setTimeout(() => {
+      setCurrentSlide((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+      setIsFadeOut(false);
+    }, 500);
   };
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+    setIsFadeOut(true);
+    setTimeout(() => {
+      setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+      setIsFadeOut(false);
+    }, 500);
   };
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+      setIsFadeOut(true);
+      setTimeout(() => {
+        setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+        setIsFadeOut(false);
+      }, 500);
     }, 3000);
     return () => clearInterval(interval);
   }, [banners]);
 
+  useEffect(() => {
+    dispatch(fetchAllFilteredProducts({ filterParams: {}, sortParams: {} }));
+  }, [dispatch]);
+
+  console.log(productList, "productList");
+  
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="relative w-full h-[600px] overflow-hidden">
+      <div className="relative w-full h-[600px] overflow-hidden transition-opacity duration-500">
         <img
           src={banners[currentSlide]}
           alt={`banner-${currentSlide + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-opacity duration-500 opacity-100"
+          style={{
+            opacity: isFadeOut ? 0 : 1,
+          }}
         />
         <Button
           onClick={prevSlide}
@@ -86,8 +110,6 @@ const ShoppingHome = () => {
         </Button>
       </div>
 
-
-
       {/* shop by category */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
@@ -97,7 +119,7 @@ const ShoppingHome = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {categoriesWithIcon.map((category) => (
               <div>
-                <Card className="cursor-pointer hover:shadow-xl transition-shadow duration-300 hover:scale-105  hover:brightness-95">
+                <Card   onClick={() => handleNavigateToListingPage(category, "category")} className="cursor-pointer hover:shadow-xl transition-shadow duration-300 hover:scale-105  hover:brightness-95">
                   <CardContent className="flex flex-col items-center justify-center p-6">
                     <h2 className="text-xl font-bold mb-1">{category.label}</h2>
                     <div className="h-12 w-12 flex items-center justify-center">
@@ -111,7 +133,7 @@ const ShoppingHome = () => {
         </div>
       </section>
 
-{/* shop by brand */}
+      {/* shop by brand */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">Shop by Brand</h2>
@@ -138,13 +160,13 @@ const ShoppingHome = () => {
           <h2 className="text-3xl font-bold text-center mb-8">
             Feature Products
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {productList && productList.length > 0
-              ? productList.map((productItem) => (
+              ? productList.slice(0, 5).map((productItem) => (
                   <ShoppingProductTile
-                    handleGetProductDetails={handleGetProductDetails}
+                    // handleGetProductDetails={handleGetProductDetails}
                     product={productItem}
-                    handleAddtoCart={handleAddtoCart}
+                    // handleAddtoCart={handleAddtoCart}
                   />
                 ))
               : null}
@@ -156,3 +178,4 @@ const ShoppingHome = () => {
 };
 
 export default ShoppingHome;
+
