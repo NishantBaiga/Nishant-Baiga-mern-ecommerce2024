@@ -43,6 +43,10 @@ import shopAddressRouter from "./routes/shop/address.route.js";
 //shop routes   
 app.use("/api/shop/address", shopAddressRouter);
 
+import shopOrderRouter from "./routes/shop/order.route.js";
+//shop routes
+app.use("/api/shop/order", shopOrderRouter);
+
 app.listen(PORT, () => {
     connectDB();
     console.log(`server is running on port ${PORT}`);

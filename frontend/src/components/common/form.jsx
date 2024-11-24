@@ -60,7 +60,7 @@ const ComponentForm = ({
             <SelectTrigger className="w-full">
               <SelectValue placeholder={getControlItem.label} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {getControlItem.options && getControlItem.options.length > 0
                 ? getControlItem.options.map((optionItem) => (
                     <SelectItem key={optionItem.id} value={optionItem.id}>
@@ -134,7 +134,7 @@ const ComponentForm = ({
         </div>
         
         {/* Submit button */}
-        <Button disable={isBtnDisabled} variant="default"  type="submit" className="mt-2 w-full">
+        <Button disable={isBtnDisabled} variant="outline"  type="submit" className="mt-2 w-full">
           {buttonText || "Submit"}
         </Button>
       </form>

@@ -12,11 +12,11 @@ const AddressCard = ({
 }) => {
   return (
     <Card
-      // onClick={
-      //   setCurrentSelectedAddress
-      //     ? () => setCurrentSelectedAddress(addressInfo)
-      //     : null
-      // }
+      onClick={
+        setCurrentSelectedAddress
+          ? () => setCurrentSelectedAddress(addressInfo)
+          : null
+      }
       className={`cursor-pointer border-red-700  ${
         selectedId?._id === addressInfo?._id
           ? "border-red-900 border-[4px]"
@@ -31,8 +31,8 @@ const AddressCard = ({
         <Label>Notes: {addressInfo?.notes}</Label>
       </CardContent>
       <CardFooter className="p-3 flex justify-between">
-        <Button onClick={() => handleEditAddress(addressInfo)}>Edit</Button>
-        <Button onClick={() => handleDeleteAddress(addressInfo)}>Delete</Button>
+        <Button variant="outline" onClick={() => handleEditAddress(addressInfo)}>Edit</Button>
+        <Button variant="outline" onClick={() => handleDeleteAddress(addressInfo)}>Delete</Button>
       </CardFooter>
     </Card>
   );

@@ -71,12 +71,6 @@ const fetchCartItems = async (req, res) => {
 
     if (!userId) {
       return res.status(400).json({ message: "user id is required" });
-    } else {
-      console.log(
-        "fetch cart item controller getting inputs",
-        userId,
-        typeof userId
-      );
     }
 
     const cart = await cartModel.findOne({ userId }).populate({
@@ -159,12 +153,10 @@ const updateCartItems = async (req, res) => {
       return res.status(404).json({ message: "product not found in cart" });
     }
 
-
     //update quantity
     cart.items[findCurrentProductIndex].quantity = quantity;
 
     await cart.save();
-
 
     //populate
     await cart.populate({

@@ -5,7 +5,7 @@ import UserCartItemContent from "./cart-item-content";
 import { Separator } from "../ui/separator";
 import { useNavigate } from "react-router-dom";
 
-const UserCartWrapper = ({ cartItems }) => {
+const UserCartWrapper = ({ cartItems , setOpenCartSheet }) => {
   //console.log(cartItems, "cartItems:");
   const navigate = useNavigate();
 
@@ -43,7 +43,10 @@ const UserCartWrapper = ({ cartItems }) => {
           <span>${totalCartAmount}</span>
         </div>
       </div>
-      <Button onClick={() => navigate("/shop/checkout")} className="w-full mt-8">Checkout</Button>
+      <Button onClick={() =>{
+         navigate("/shop/checkout");
+         setOpenCartSheet(false);
+      }} className="w-full mt-8">Checkout</Button>
     </SheetContent>
   );
 };
