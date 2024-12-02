@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { HousePlug, LogOut, Menu, ShoppingCart, UserCog } from "lucide-react";
@@ -22,18 +27,25 @@ import { Label } from "../ui/label";
 // Menu Items
 function MenuItems() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   function handleNavigate(getCurrentMenuItem) {
     sessionStorage.removeItem("filters");
     const currentFilter =
-      getCurrentMenuItem.id !== "home"
+      getCurrentMenuItem.id !== "home" && getCurrentMenuItem.id !== "products"
         ? {
             category: [getCurrentMenuItem.id],
           }
         : null;
 
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
-    navigate(getCurrentMenuItem.path);
+    location.pathname.includes("listing") && currentFilter !== null
+      ? setSearchParams(new URLSearchParams(`?category=${getCurrentMenuItem.id}`))
+      : navigate(getCurrentMenuItem.path);
   }
+
+  
   return (
     <nav className="flex flex-col mt-5 mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row   ">
       {shoppingViewHeaderMenuItems.map((item) => (

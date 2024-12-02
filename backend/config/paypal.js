@@ -1,4 +1,5 @@
-import paypal from "paypal-rest-sdkv2";
+
+import paypal from "paypal-rest-sdk";
 import dotenv from "dotenv";
 dotenv.config();
 

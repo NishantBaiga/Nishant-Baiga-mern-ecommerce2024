@@ -92,8 +92,13 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
           </div>
 
           <div className="mt-5 mb-5">
-            <Button variant="outline" className="w-full" onClick={()=>handleAddToCart(ProductDetails?._id)}>
-              Add To Cart
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => handleAddToCart(ProductDetails?._id)}
+              disabled={ProductDetails?.totalStock === 0}
+            >
+              {ProductDetails?.totalStock === 0 ? "Out of Stock" : "Add To Cart"}
             </Button>
           </div>
           <Separator className="my-4 bg-black" />

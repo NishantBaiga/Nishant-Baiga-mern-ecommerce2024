@@ -13,11 +13,20 @@ const ShoppingProductTile = ({ product, handleGetProductDetails, handleAddToCart
             alt={product?.title}
             className="w-full h-[250px] object-cover rounded-t-lg"
           />
-          {product?.salePrice > 0 ? (
+          {product?.totalStock === 0 ? (
+            <Badge className="absolute top-2 left-2 bg-white hover:bg-gray-600">
+              Out Of Stock
+            </Badge>
+          ) : product?.totalStock <= 10 ? (
             <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              Sale
+              {product?.totalStock} left
             </Badge>
           ) : null}
+          {product?.salePrice > 0 && (
+            <Badge className="absolute top-2 right-2 bg-red-500 hover:bg-red-600">
+              Sale
+            </Badge>
+          )}
         </div>
         <CardContent className="p-4 ">
           <h2 className="text-xl font-bold mb-2">{product?.title}</h2>
@@ -47,8 +56,15 @@ const ShoppingProductTile = ({ product, handleGetProductDetails, handleAddToCart
        
       </div>
       <CardFooter>
-          <Button variant="outline" onClick={()=>handleAddToCart(product?._id)} className="w-full">Add To Card</Button>
-        </CardFooter>
+        <Button
+          variant="outline"
+          onClick={() => handleAddToCart(product?._id)}
+          className="w-full"
+          disabled={product?.totalStock === 0}
+        >
+          {product?.totalStock === 0 ? "Out Of Stock" : "Add To Card"}
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

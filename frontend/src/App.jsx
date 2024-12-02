@@ -19,6 +19,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./store/authSlice";
 import { Skeleton } from "./components/ui/skeleton";
+import PaypalReturn from "./pages/shopping-view/paypal-return";
+import PaymentSuccess from "./pages/shopping-view/payment-success";
 
 function App() {
   
@@ -80,6 +82,8 @@ if(isLoading)return <div className="flex justify-center items-center h-screen w-
             <Route path="checkout" element={<ShoppingCheckout />} />
             <Route path="home" element={<ShoppingHome />} />
             <Route path="account" element={<ShoppingAccount />} />
+            <Route path="paypal-return" element={<PaypalReturn />} />
+            <Route path="paypal-success" element={<PaymentSuccess />} />
           </Route>
 
           

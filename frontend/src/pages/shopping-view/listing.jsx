@@ -52,6 +52,8 @@ const ShoppingListing = () => {
 
   const { toast } = useToast();
 
+  const categorySearchParams = searchParams.get("category");
+
   const handleSort = (value) => {
     setsort(value);
   };
@@ -106,19 +108,15 @@ const ShoppingListing = () => {
   useEffect(() => {
     setsort("price-lowtohigh");
     setfilters(JSON.parse(sessionStorage.getItem("filters")) || {});
-  }, []);
+  }, [ categorySearchParams]);
 
   // run when filter changes
-  useEffect(() => {
-    if (filters && Object.keys(filters).length > 0) {
-      const createQueryString = createSearchParamsHelper(filters);
-      setSearchParams(new URLSearchParams(createQueryString));
-    } else {
-      setSearchParams({});
-    }
-  }, [filters]);
-
-  // run when either filter or sort changes fetch products
+  // When the filters change, we need to update the URL query string so that 
+  // when the user refreshes the page, the same filters are applied. This is 
+  // done by creating a query string from the filters object and then setting 
+  // the search params to that query string. If there are no filters, we set 
+  // the search params to an empty object. This is done in a useEffect hook so 
+  // that it runs every time the filters change. 
   useEffect(() => {
     if (filters !== null && sort !== null)
       dispatch(
@@ -139,6 +137,8 @@ const ShoppingListing = () => {
   // console.log(searchParams, "searchParams");
 
   //console.log(productDetails, "productDetails");
+  console.log(productList, "productList");
+  
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[135px_1fr] gap-6 p-4 md:p-6 ">

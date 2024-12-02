@@ -29,10 +29,12 @@ const UserCartWrapper = ({ cartItems , setOpenCartSheet }) => {
       <div className="mt-8 space-y-4">
         {cartItems && cartItems.length > 0
           ? cartItems.map((item) => (
-              <div>
-                <UserCartItemContent cartItem={item} key={item.id} />
-                <Separator className="bg-black mt-2" />
-              </div>
+
+            <UserCartItemContent  key={item?._id} cartItem={item}  />
+              // <div key={item?._id}>
+              //   <UserCartItemContent  key={item?._id} cartItem={item}  />
+              //   <Separator className="bg-black mt-2" />
+              // </div>
             ))
           : null}
       </div>
