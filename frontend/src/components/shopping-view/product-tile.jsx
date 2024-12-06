@@ -58,7 +58,7 @@ const ShoppingProductTile = ({ product, handleGetProductDetails, handleAddToCart
       <CardFooter>
         <Button
           variant="outline"
-          onClick={() => handleAddToCart(product?._id)}
+          onClick={() => handleAddToCart(product?._id, product?.totalStock)}
           className="w-full"
           disabled={product?.totalStock === 0}
         >

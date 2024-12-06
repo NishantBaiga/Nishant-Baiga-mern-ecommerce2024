@@ -47,6 +47,10 @@ import shopOrderRouter from "./routes/shop/order.route.js";
 //shop routes
 app.use("/api/shop/order", shopOrderRouter);
 
+import shopSearchRouter from "./routes/shop/search.route.js";
+//shop routes
+app.use("/api/shop/search", shopSearchRouter);
+
 app.listen(PORT, () => {
     connectDB();
     console.log(`server is running on port ${PORT}`);

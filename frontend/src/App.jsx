@@ -21,6 +21,7 @@ import { checkAuth } from "./store/authSlice";
 import { Skeleton } from "./components/ui/skeleton";
 import PaypalReturn from "./pages/shopping-view/paypal-return";
 import PaymentSuccess from "./pages/shopping-view/payment-success";
+import SearchProducts from "./pages/shopping-view/search";
 
 function App() {
   
@@ -84,10 +85,9 @@ if(isLoading)return <div className="flex justify-center items-center h-screen w-
             <Route path="account" element={<ShoppingAccount />} />
             <Route path="paypal-return" element={<PaypalReturn />} />
             <Route path="paypal-success" element={<PaymentSuccess />} />
+            <Route path="search" element={<SearchProducts />} />
           </Route>
-
           
-
           {/* unauthorized route */}
           <Route path="/unauth-page" element={<UnauthPage />} />
 

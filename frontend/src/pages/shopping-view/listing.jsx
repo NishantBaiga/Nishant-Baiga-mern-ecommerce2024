@@ -41,6 +41,8 @@ const ShoppingListing = () => {
     (state) => state.shopProducts
   );
 
+  const { cartItems } = useSelector((state) => state.shopCart);
+
   const [filters, setfilters] = useState({});
   const [sort, setsort] = useState(null);
 
@@ -84,8 +86,27 @@ const ShoppingListing = () => {
     dispatch(fetchProductDetails(getCurrentProductId));
   }
 
-  function handleAddToCart(getCurrentProductId) {
+  function handleAddToCart(getCurrentProductId, getTotalStock) {
     //console.log(getCurrentProductId, "getCurrentProductId");
+    //console.log(cartItems, "cartItems");
+    let getCartItems = cartItems.items || [];
+    if (getCartItems.length) {
+      const indexOfCurrentItem = getCartItems.findIndex(
+        (item) => item.productId === getCurrentProductId
+      );
+      if (indexOfCurrentItem > -1) {
+        const getQuantity = getCartItems[indexOfCurrentItem].quantity;
+        
+        if (getQuantity + 1 > getTotalStock) {
+          toast({
+            title: `Only ${getQuantity} items can be added for this product`,
+            className: "bg-red-500 text-white",
+            duration: 2000,
+          });
+          return;
+        }
+      }
+    }
 
     dispatch(
       addToCart({
@@ -108,15 +129,15 @@ const ShoppingListing = () => {
   useEffect(() => {
     setsort("price-lowtohigh");
     setfilters(JSON.parse(sessionStorage.getItem("filters")) || {});
-  }, [ categorySearchParams]);
+  }, [categorySearchParams]);
 
   // run when filter changes
-  // When the filters change, we need to update the URL query string so that 
-  // when the user refreshes the page, the same filters are applied. This is 
-  // done by creating a query string from the filters object and then setting 
-  // the search params to that query string. If there are no filters, we set 
-  // the search params to an empty object. This is done in a useEffect hook so 
-  // that it runs every time the filters change. 
+  // When the filters change, we need to update the URL query string so that
+  // when the user refreshes the page, the same filters are applied. This is
+  // done by creating a query string from the filters object and then setting
+  // the search params to that query string. If there are no filters, we set
+  // the search params to an empty object. This is done in a useEffect hook so
+  // that it runs every time the filters change.
   useEffect(() => {
     if (filters !== null && sort !== null)
       dispatch(
@@ -134,11 +155,8 @@ const ShoppingListing = () => {
   console.log(productList, "productList");
   //console.log("filter", filters);
   //console.log("sort", sort);
-  // console.log(searchParams, "searchParams");
-
+  //console.log(searchParams, "searchParams");
   //console.log(productDetails, "productDetails");
-  console.log(productList, "productList");
-  
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[135px_1fr] gap-6 p-4 md:p-6 ">
@@ -162,7 +180,6 @@ const ShoppingListing = () => {
                   <span className="ml-1">Sort By</span>
                 </Button>
               </DropdownMenuTrigger>
-
 
               {/* sort options */}
               <DropdownMenuContent

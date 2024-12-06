@@ -16,14 +16,34 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
   // console.log(setOpen, "setOpen");
 
   const dispatch = useDispatch();
-
   const {user} = useSelector((state) => state.auth);
-
   const {toast}= useToast();
+  const { cartItems } = useSelector((state) => state.shopCart);
 
   
-  function handleAddToCart(getCurrentProductId) {
+  function handleAddToCart(getCurrentProductId, getTotalStock) {
     //console.log(getCurrentProductId, "getCurrentProductId");
+
+
+    let getCartItems = cartItems.items || [];
+    if (getCartItems.length) {
+      const indexOfCurrentItem = getCartItems.findIndex(
+        (item) => item.productId === getCurrentProductId
+      );
+      if (indexOfCurrentItem > -1) {
+        const getQuantity = getCartItems[indexOfCurrentItem].quantity;
+        
+        if (getQuantity + 1 > 5) {
+          toast({
+            title: "Only 5 items can be added for this product",
+            className: "bg-red-500 text-white",
+            duration: 2000,
+          });
+          return;
+        }
+      }
+    }
+
     
     dispatch(addToCart({ userId:user?.id, productId: getCurrentProductId, quantity:1})).then((data) => {
      if (data?.payload?.success) {
@@ -95,7 +115,7 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => handleAddToCart(ProductDetails?._id)}
+              onClick={() => handleAddToCart(ProductDetails?._id, ProductDetails?.totalStock)}
               disabled={ProductDetails?.totalStock === 0}
             >
               {ProductDetails?.totalStock === 0 ? "Out of Stock" : "Add To Cart"}
