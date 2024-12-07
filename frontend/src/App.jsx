@@ -43,6 +43,17 @@ if(isLoading)return <div className="flex justify-center items-center h-screen w-
       <div className="flex flex-col min-h-screen w-full overflow-hidden bg-white">
         <Routes>
           {/* auth routes */}
+
+          <Route
+          path="/"
+          element={
+            <CheckAuth
+              isAuthenticated={isAuthenticated}
+              user={user}
+            ></CheckAuth>
+          }
+        />
+          
           <Route
             path="/auth"
             element={

@@ -51,6 +51,14 @@ import shopSearchRouter from "./routes/shop/search.route.js";
 //shop routes
 app.use("/api/shop/search", shopSearchRouter);
 
+import shopReviewRouter from "./routes/shop/review.route.js";
+//shop routes
+app.use("/api/shop/review", shopReviewRouter);
+
+import featureRouter from "./routes/features.route.js";
+//shop routes
+app.use("/api/common/feature", featureRouter);
+
 app.listen(PORT, () => {
     connectDB();
     console.log(`server is running on port ${PORT}`);

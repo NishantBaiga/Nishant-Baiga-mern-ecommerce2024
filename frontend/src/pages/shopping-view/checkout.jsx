@@ -37,10 +37,11 @@ console.log(approvalUrl, "approvalUrl");
 
   function handleInitiatePaypalPayment() {
     // Check if the cart is not empty
-    if (cartItems.length === 0) {
+    if (!cartItems || !cartItems.items || cartItems.items.length === 0) {
       toast({
         title: "Your cart is empty. Please add items to proceed",
         variant: "destructive",
+        duration:2000,
       });
 
       return;
@@ -50,6 +51,7 @@ console.log(approvalUrl, "approvalUrl");
       toast({
         title: "Please select one address to proceed.",
         variant: "destructive",
+        duration:2000,
       });
 
       return;
@@ -123,7 +125,7 @@ console.log(approvalUrl, "approvalUrl");
         <img src={img} className="h-full w-full object-cover object-center" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5 p-5">
-        <Address setCurrentSelectedAddress={setCurrentSelectedAddress} />
+        <Address selectedId={currentSelectedAddress} setCurrentSelectedAddress={setCurrentSelectedAddress} />
         <div className="flex flex-col gap-4">
           {cartItems && cartItems.items && cartItems.items.length > 0
             ? cartItems.items.map((item) => (

@@ -19,21 +19,21 @@ const initialFormData = {
   pincode: "",
   notes: "",
 };
-const Address = ({setCurrentSelectedAddress}) => {
+const Address = ({ setCurrentSelectedAddress, selectedId }) => {
   const [formData, setFormData] = useState(initialFormData);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shopAddress);
   const [currenteditedId, setCurrenteditedId] = useState(null);
-  const{toast}= useToast();
+  const { toast } = useToast();
   function handleManageAddress(e) {
     e.preventDefault();
 
-    if(addressList.length >= 2 && currenteditedId === null){  
+    if (addressList.length >= 2 && currenteditedId === null) {
       toast({
         title: "You can add only 2 addresses",
         variant: "destructive",
-       })
+      });
       return;
     }
 
@@ -52,22 +52,21 @@ const Address = ({setCurrentSelectedAddress}) => {
             toast({
               title: data?.payload?.message,
               className: "bg-white text-black",
-            })
+            });
           }
           console.log(data, "edit address response");
         })
-      :
-    dispatch(addAddress({ ...formData, userId: user?.id })).then((data) => {
-      if (data?.payload?.success) {
-        dispatch(fetchAddresses(user?.id));
-        setFormData(initialFormData);
-        toast({
-          title: data?.payload?.message,
-          className: "bg-white text-black",
-        })
-      }
-      console.log(data, "add address response");
-    });
+      : dispatch(addAddress({ ...formData, userId: user?.id })).then((data) => {
+          if (data?.payload?.success) {
+            dispatch(fetchAddresses(user?.id));
+            setFormData(initialFormData);
+            toast({
+              title: data?.payload?.message,
+              className: "bg-white text-black",
+            });
+          }
+          console.log(data, "add address response");
+        });
   }
 
   function handleDeleteAddress(getCurrentAddress) {
@@ -79,7 +78,7 @@ const Address = ({setCurrentSelectedAddress}) => {
         toast({
           title: data?.payload?.message,
           className: "bg-white text-black",
-        })
+        });
       }
       console.log(data, "delete address response");
     });
@@ -94,7 +93,7 @@ const Address = ({setCurrentSelectedAddress}) => {
       phone: getCurrentAddress?.phone,
       pincode: getCurrentAddress?.pincode,
       notes: getCurrentAddress?.notes,
-    })
+    });
   }
 
   function isFormValid() {
@@ -115,18 +114,19 @@ const Address = ({setCurrentSelectedAddress}) => {
         {addressList && addressList.length > 0
           ? addressList.map((singleAddressItem) => (
               <AddressCard
-                //   selectedId={selectedId}
+                selectedId={selectedId}
                 handleDeleteAddress={handleDeleteAddress}
                 addressInfo={singleAddressItem}
                 handleEditAddress={handleEditAddress}
                 setCurrentSelectedAddress={setCurrentSelectedAddress}
-              
               />
             ))
           : null}
       </div>
       <CardHeader>
-        <CardTitle>{currenteditedId !==null ? "Edit Address" : "Add Address"}</CardTitle>
+        <CardTitle>
+          {currenteditedId !== null ? "Edit Address" : "Add Address"}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <CommonForm

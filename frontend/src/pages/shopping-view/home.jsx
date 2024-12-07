@@ -13,8 +13,12 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
+import { fetchAllFilteredProducts, fetchProductDetails } from "@/store/shop/products-slice";
 import { useNavigate } from "react-router-dom";
+import { getFeatureImages } from "@/store/features-slice";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { useToast } from "@/hooks/use-toast";
+import ProductDetails from "@/components/shopping-view/product-details";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: <ShirtIcon /> },
@@ -32,14 +36,18 @@ const brandsWithIcon = [
   { id: "zara", label: "Zara", icon: <ShirtIcon /> },
   { id: "h&m", label: "H&M", icon: <ShirtIcon /> },
 ];
+
 const ShoppingHome = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFadeOut, setIsFadeOut] = useState(false);
-  const banners = [bannerOne, bannerTwo, bannerThree];
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const dispatch = useDispatch();
-  const {productList}= useSelector((state) => state.shopProducts);
-
+  const { productList, productDetails } = useSelector((state) => state.shopProducts);
+  const { featureImageList } = useSelector((state) => state.commonFeature);
   const navigate = useNavigate();
+  const{toast}=useToast();
+
+  const { user } = useSelector((state) => state.auth);
 
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");
@@ -54,7 +62,9 @@ const ShoppingHome = () => {
   const prevSlide = () => {
     setIsFadeOut(true);
     setTimeout(() => {
-      setCurrentSlide((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+      setCurrentSlide((prev) =>
+        prev === 0 ? featureImageList.length - 1 : prev - 1
+      );
       setIsFadeOut(false);
     }, 500);
   };
@@ -62,40 +72,74 @@ const ShoppingHome = () => {
   const nextSlide = () => {
     setIsFadeOut(true);
     setTimeout(() => {
-      setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+      setCurrentSlide((prev) =>
+        prev === featureImageList.length - 1 ? 0 : prev + 1
+      );
       setIsFadeOut(false);
     }, 500);
   };
+
+
+  
+  function handleGetProductDetails(getCurrentProductId) {
+    dispatch(fetchProductDetails(getCurrentProductId));
+  }
+
+  function handleAddtoCart(getCurrentProductId) {
+    dispatch(
+      addToCart({
+        userId: user?.id,
+        productId: getCurrentProductId,
+        quantity: 1,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchCartItems(user?.id));
+        toast({
+          title: "Product is added to cart",
+        });
+      }
+    });
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
       setIsFadeOut(true);
       setTimeout(() => {
-        setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+        setCurrentSlide((prev) =>
+          prev === featureImageList.length - 1 ? 0 : prev + 1
+        );
         setIsFadeOut(false);
       }, 500);
     }, 3000);
     return () => clearInterval(interval);
-  }, [banners]);
+  }, [featureImageList]);
 
   useEffect(() => {
     dispatch(fetchAllFilteredProducts({ filterParams: {}, sortParams: {} }));
   }, [dispatch]);
 
-  console.log(productList, "productList");
-  
+  useEffect(() => {
+    dispatch(getFeatureImages());
+  }, [dispatch]);
 
   return (
     <div className="flex flex-col min-h-screen">
       <div className="relative w-full h-[600px] overflow-hidden transition-opacity duration-500">
-        <img
-          src={banners[currentSlide]}
-          alt={`banner-${currentSlide + 1}`}
-          className="w-full h-full object-cover transition-opacity duration-500 opacity-100"
-          style={{
-            opacity: isFadeOut ? 0 : 1,
-          }}
-        />
+        {featureImageList && featureImageList.length > 0
+          ? featureImageList.map((featureImageItem, index) => (
+              <img
+                key={index}
+                src={featureImageItem.image}
+                alt={featureImageItem.title}
+                className="w-full h-full object-cover transition-opacity duration-500"
+                style={{
+                  opacity: isFadeOut || currentSlide !== index ? 0 : 1,
+                  position: currentSlide === index ? 'relative' : 'absolute'
+                }}
+              />
+            ))
+          : null}
         <Button
           onClick={prevSlide}
           className="absolute left-5 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2"
@@ -118,8 +162,13 @@ const ShoppingHome = () => {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {categoriesWithIcon.map((category) => (
-              <div>
-                <Card   onClick={() => handleNavigateToListingPage(category, "category")} className="cursor-pointer hover:shadow-xl transition-shadow duration-300 hover:scale-105  hover:brightness-95">
+              <div key={category.id}>
+                <Card
+                  onClick={() =>
+                    handleNavigateToListingPage(category, "category")
+                  }
+                  className="cursor-pointer hover:shadow-xl transition-shadow duration-300 hover:scale-105  hover:brightness-95"
+                >
                   <CardContent className="flex flex-col items-center justify-center p-6">
                     <h2 className="text-xl font-bold mb-1">{category.label}</h2>
                     <div className="h-12 w-12 flex items-center justify-center">
@@ -140,6 +189,7 @@ const ShoppingHome = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {brandsWithIcon.map((brandItem) => (
               <Card
+                key={brandItem.id}
                 onClick={() => handleNavigateToListingPage(brandItem, "brand")}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
               >
@@ -164,15 +214,21 @@ const ShoppingHome = () => {
             {productList && productList.length > 0
               ? productList.slice(0, 5).map((productItem) => (
                   <ShoppingProductTile
-                    // handleGetProductDetails={handleGetProductDetails}
+                    key={productItem.id}
                     product={productItem}
-                    // handleAddtoCart={handleAddtoCart}
+                    handleGetProductDetails={handleGetProductDetails}
+                    handleAddToCart={handleAddtoCart}
                   />
                 ))
               : null}
           </div>
         </div>
       </section>
+      <ProductDetails
+        open={openDetailsDialog}
+        setOpen={setOpenDetailsDialog}
+        productDetails={productDetails}
+      />
     </div>
   );
 };

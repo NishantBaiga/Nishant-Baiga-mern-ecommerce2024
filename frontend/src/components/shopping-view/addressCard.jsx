@@ -19,7 +19,7 @@ const AddressCard = ({
       }
       className={`cursor-pointer transition-all duration-200 ease-in-out ${
         selectedId?._id === addressInfo?._id
-          ? "bg-gray-200 border-red-900 border-[4px]"
+          ? "bg-gray-200 border-black border-[3px]"
           : "bg-white border-black"
       } hover:bg-gray-100 hover:shadow-md hover:ring-1 hover:ring-gray-300 hover:ring-opacity-50`}
     

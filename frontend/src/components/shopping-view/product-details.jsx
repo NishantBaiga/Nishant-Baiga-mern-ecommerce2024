@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -6,24 +6,30 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { StarIcon } from "lucide-react";
 import { Input } from "../ui/input";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, fetchCartItems,  } from "@/store/shop/cart-slice";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/hooks/use-toast";
 import { setProductDetails } from "@/store/shop/products-slice";
+import { Label } from "../ui/label";
+import StarRatingComponent from "../common/star-rating";
+import { addProductReview, getProductReviews } from "@/store/shop/review-slice";
 
 const ProductDetails = ({ open, setOpen, ProductDetails }) => {
   //console.log(ProductDetails, "ProductDetails");
   // console.log(open, "open");
   // console.log(setOpen, "setOpen");
-
+  const [reviewMsg, setReviewMsg] = useState("");
+  const [rating, setRating] = useState(0);
   const dispatch = useDispatch();
-  const {user} = useSelector((state) => state.auth);
-  const {toast}= useToast();
+  const { user } = useSelector((state) => state.auth);
+  const { toast } = useToast();
   const { cartItems } = useSelector((state) => state.shopCart);
+  const { reviewList } = useSelector((state) => state.shopReview);
 
+  // console.log(reviewList, "reviewList");
   
+
   function handleAddToCart(getCurrentProductId, getTotalStock) {
     //console.log(getCurrentProductId, "getCurrentProductId");
-
 
     let getCartItems = cartItems.items || [];
     if (getCartItems.length) {
@@ -32,7 +38,7 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
       );
       if (indexOfCurrentItem > -1) {
         const getQuantity = getCartItems[indexOfCurrentItem].quantity;
-        
+
         if (getQuantity + 1 > 5) {
           toast({
             title: "Only 5 items can be added for this product",
@@ -44,22 +50,63 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
       }
     }
 
-    
-    dispatch(addToCart({ userId:user?.id, productId: getCurrentProductId, quantity:1})).then((data) => {
-     if (data?.payload?.success) {
-      dispatch(fetchCartItems(user?.id));
-      toast({
-        title: data?.payload?.message,
-        className: "bg-white text-black",
+    dispatch(
+      addToCart({
+        userId: user?.id,
+        productId: getCurrentProductId,
+        quantity: 1,
       })
-     }
+    ).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchCartItems(user?.id));
+        toast({
+          title: data?.payload?.message,
+          className: "bg-white text-black",
+        });
+      }
     });
   }
 
+
+  function handleRatingChange(getRating) {
+    setRating(getRating);
+  }
+
+  function handleAddReview() {
+    dispatch(addProductReview({ productId: ProductDetails?._id, userId: user?.id, userName: user?.userName, reviewMessage: reviewMsg, reviewValue: rating }))
+      .then((data) => {
+        if (data?.payload?.success) {
+          dispatch(getProductReviews(ProductDetails?._id));
+          toast({
+            title: data?.payload?.message,
+            className: "bg-white text-black",
+          });
+          setReviewMsg("");
+          setRating(0);
+        }
+      });
+  }
+  
+
+  useEffect(() => {
+    if(ProductDetails !== null) dispatch(getProductReviews(ProductDetails?._id));
+  },[ProductDetails]);
+
+  
   function handleDialogClose() {
     setOpen(false);
     dispatch(setProductDetails());
+    setRating(0);
+    setReviewMsg("");
   }
+
+
+  const averageReview =
+    reviewList && reviewList.length > 0
+    ? reviewList.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
+      reviewList.length
+    : 0;
+
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
@@ -103,53 +150,75 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
           </div>
 
           <div className="flex items-center gap-0.5">
-          <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <span className="text-sm text-muted-foreground">(4.5)</span>
+         <StarRatingComponent rating={averageReview} readonly/>
+            <span className="text-sm text-muted-foreground">{averageReview.toFixed(1)}</span>
           </div>
 
           <div className="mt-5 mb-5">
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => handleAddToCart(ProductDetails?._id, ProductDetails?.totalStock)}
+              onClick={() =>
+                handleAddToCart(ProductDetails?._id, ProductDetails?.totalStock)
+              }
               disabled={ProductDetails?.totalStock === 0}
             >
-              {ProductDetails?.totalStock === 0 ? "Out of Stock" : "Add To Cart"}
+              {ProductDetails?.totalStock === 0
+                ? "Out of Stock"
+                : "Add To Cart"}
             </Button>
           </div>
           <Separator className="my-4 bg-black" />
           <div className="max-h-[300px] overflow-auto">
             <h2 className="text-xl font-bold mb-4 ">Reviews</h2>
             <div className="grid gap-6">
-              <div className="flex gap-4">
-                <Avatar className="w-8 h-8 bg-gray-300 border border-black">
-                  <AvatarFallback className="text-sm">SM</AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">John Doe</h3>
+
+            {reviewList && reviewList.length > 0 ? (
+              reviewList.map((reviewItem, index) => (
+                <div key={index} className="flex gap-4">
+                  <Avatar className="w-10 h-10 border">
+                    <AvatarFallback>
+                      {reviewItem?.userName?.[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid gap-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold">{reviewItem?.userName}</h3>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <StarRatingComponent rating={reviewItem?.reviewValue} />
+                    </div>
+                    <p className="text-muted-foreground">
+                      {reviewItem?.reviewMessage}
+                    </p>
                   </div>
-                  <div className="flex item-center gap-0.5">
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                    <StarIcon className="w-4 h-4 text-yellow-500"/>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Quisquam, voluptatum.
-                  </p>
                 </div>
-              </div>
+              ))
+            ) : (
+              <h1>No Reviews</h1>
+            )}
+            
             </div>
-            <div className="mt-6 flex gap-2">
-                <Input type="text" placeholder="Add a review" />
-                <Button>Submit</Button> 
+            <div className="mt-10 flex-col flex gap-2">
+              <Label>Write a review</Label>
+              <div className="flex gap-1">
+                <StarRatingComponent
+                  rating={rating}
+                  handleRatingChange={handleRatingChange}
+                />
+              </div>
+              <Input
+                name="reviewMsg"
+                value={reviewMsg}
+                onChange={(event) => setReviewMsg(event.target.value)}
+                placeholder="Write a review..."
+              />
+              <Button
+                onClick={handleAddReview}
+                disabled={reviewMsg.trim() === ""}
+              >
+                Submit
+              </Button>
             </div>
           </div>
         </div>
