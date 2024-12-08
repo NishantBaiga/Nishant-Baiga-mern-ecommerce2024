@@ -45,7 +45,12 @@ const getFeatureImages = async (req, res) => {
 const deleteFeatureImage = async (req, res) => {
   try {
     const { id } = req.params;
-
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Image id is required",
+      });
+    }
     const image = await featuresModel.findByIdAndDelete(id);
 
     if (!image) {

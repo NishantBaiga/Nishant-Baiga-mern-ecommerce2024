@@ -125,6 +125,7 @@ const ShoppingHome = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* home banner */}
       <div className="relative w-full h-[600px] overflow-hidden transition-opacity duration-500">
         {featureImageList && featureImageList.length > 0
           ? featureImageList.map((featureImageItem, index) => (

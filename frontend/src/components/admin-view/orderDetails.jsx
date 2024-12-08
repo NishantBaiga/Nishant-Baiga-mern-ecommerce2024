@@ -7,7 +7,7 @@ import CommonForm from "@/components/common/form";
 const initialformData = {
   status: "",
 }
-const AdminOrderDetails = () => {
+const AdminOrderDetailsView = () => {
 
 const [formData,setFormData]= useState(initialformData);
 
@@ -93,4 +93,4 @@ function handleUpdateStatus(e){
   );
 };
 
-export default AdminOrderDetails;
+export default AdminOrderDetailsView;

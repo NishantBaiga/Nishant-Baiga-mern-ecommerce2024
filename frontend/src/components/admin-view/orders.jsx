@@ -14,12 +14,33 @@ import {
   TableRow,
 } from "../ui/table";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { useState } from "react";
-import AdminOrderDetails from "./orderDetails";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { useEffect, useState } from "react";
+import AdminOrderDetailsView from "./orderDetails";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllOrdersForAdmin, getOrderDetailsForAdmin, resetOrderDetails } from "@/store/admin/order-slice";
+import { Badge } from "../ui/badge";
+import { use } from "react";
 
 const AdminOrdersViews = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+const {orderList, orderDetails} =useSelector((state) => state.adminOrder);
+const dispatch = useDispatch();
+
+
+function handleFecthOrderDetails(orderId) {
+  dispatch(getOrderDetailsForAdmin(orderId));
+}
+  
+useEffect(() => {
+  dispatch(getAllOrdersForAdmin());
+},[dispatch]);
+
+useEffect(() => {
+if(orderDetails !== null) setOpenDetailsDialog(true);
+}, [openDetailsDialog]);
+
+console.log(orderList,"orderList");
 
   return (
     <Card>
@@ -41,30 +62,58 @@ const AdminOrdersViews = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell>1</TableCell>
-              <TableCell>1</TableCell>
-              <TableCell>1</TableCell>
-              <TableCell>1</TableCell>
-              <TableCell>
-                <Dialog
-                  open={openDetailsDialog}
-                  onOpenChange={setOpenDetailsDialog}
-                  className="fixed inset-0 z-[100]"
-                >
-                  <DialogContent className="m-auto max-w-[480px] w-full bg-white ">
-                    <AdminOrderDetails />
-                  </DialogContent>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
+            {orderList && orderList.length > 0 ? (
+              orderList.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>{order?._id}</TableCell>
+                  <TableCell>{order?.orderDate.split("T")[0]}</TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`py-1 px-3 transition-colors hover:bg-opacity-80 ${
+                        order?.orderStatus === "confirm"
+                          ? "bg-green-500 text-white hover:bg-green-600"
+                          : order?.orderStatus === "rejected"
+                          ? "bg-red-600 text-white hover:bg-red-700"
+                          : "bg-black text-white hover:bg-black/90"
+                      }`}
                     >
-                      View Details
-                    </Button>
-                  </DialogTrigger>
-                </Dialog>
-              </TableCell>
-            </TableRow>
+                      {order?.orderStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{order?.totalAmount}</TableCell>
+                  <TableCell>
+                    <Dialog
+                      open={openDetailsDialog}
+                      onOpenChange={() => {
+                        setOpenDetailsDialog(false);
+                        dispatch(resetOrderDetails());
+                      }}
+                      className="fixed inset-0 z-[100]"
+                    >
+                      <DialogContent className="m-auto max-w-[480px] w-full bg-white ">
+                        {/* <ShopOrderdetails views /> */}
+                        <DialogTitle className="sr-only">
+                          Order Details
+                        </DialogTitle>
+                        <AdminOrderDetailsView  orderDetails={orderDetails} />
+                      </DialogContent>
+
+                      {/* <ShopOrderdetails views button /> */}
+                      <DialogTrigger
+                        asChild
+                        onClick={() => handleFecthOrderDetails(order?._id)}
+                      >
+                        <Button variant="outline">View Details</Button>
+                      </DialogTrigger>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <h1 className="text-center font-bold text-3xl">
+                No orders found
+              </h1>
+            )}
           </TableBody>
         </Table>
       </CardContent>

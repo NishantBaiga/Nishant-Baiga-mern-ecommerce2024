@@ -228,3 +228,4 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
 };
 
 export default ProductDetails;
+
