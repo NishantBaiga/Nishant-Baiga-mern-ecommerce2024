@@ -19,6 +19,7 @@ import { getFeatureImages } from "@/store/features-slice";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/hooks/use-toast";
 import ProductDetails from "@/components/shopping-view/product-details";
+import { use } from "react";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: <ShirtIcon /> },
@@ -102,6 +103,12 @@ const ShoppingHome = () => {
     });
   }
 
+
+  useEffect(()=>{
+    if(productDetails!==null) setOpenDetailsDialog(true);
+  },[productDetails]);
+
+
   useEffect(() => {
     const interval = setInterval(() => {
       setIsFadeOut(true);
@@ -122,6 +129,9 @@ const ShoppingHome = () => {
   useEffect(() => {
     dispatch(getFeatureImages());
   }, [dispatch]);
+
+  console.log(productList, "productList");
+  
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -215,7 +225,7 @@ const ShoppingHome = () => {
             {productList && productList.length > 0
               ? productList.slice(0, 5).map((productItem) => (
                   <ShoppingProductTile
-                    key={productItem.id}
+                    key={productItem?._id}
                     product={productItem}
                     handleGetProductDetails={handleGetProductDetails}
                     handleAddToCart={handleAddtoCart}
@@ -228,7 +238,7 @@ const ShoppingHome = () => {
       <ProductDetails
         open={openDetailsDialog}
         setOpen={setOpenDetailsDialog}
-        productDetails={productDetails}
+        ProductDetails={productDetails}
       />
     </div>
   );

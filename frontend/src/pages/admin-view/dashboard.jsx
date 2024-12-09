@@ -18,7 +18,7 @@ function AdminDashboard() {
   const { featureImageList } = useSelector((state) => state.commonFeature);
   const { toast } = useToast();
 
-  console.log(uploadedImageUrl, "uploadedImageUrl");
+  // console.log(uploadedImageUrl, "uploadedImageUrl");
 
   function handleUploadFeatureImage() {
     dispatch(addFeatureImage(uploadedImageUrl)).then((data) => {
@@ -35,6 +35,8 @@ function AdminDashboard() {
   }
 
   function handleDeleteFeatureImage(id) {
+    console.log(id, "id");
+    
     setDeleteLoadingState(true);
     dispatch(deleteFeatureImage(id)).then((data) => {
       if (data?.payload?.success) {
@@ -69,7 +71,7 @@ function AdminDashboard() {
       <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">
         Upload
       </Button>
-      <div className="flex flex-col gap-4 mt-5">
+      <div className="flex flex-col gap-4 mt-10">
         {featureImageList && featureImageList.length > 0
           ? featureImageList.map((featureImgItem) => (
               <div className="relative" key={featureImgItem.id}>
@@ -78,9 +80,10 @@ function AdminDashboard() {
                   className="w-full h-[300px] object-cover rounded-t-lg"
                 />
                 <Button
-                  onClick={() => handleDeleteFeatureImage(featureImgItem.id)}
-                  className="absolute top-2 right-2"
+                  onClick={() => handleDeleteFeatureImage(featureImgItem?._id)}
+                  className="w-full mt-2"
                   disabled={deleteLoadingState}
+                  variant="outline"
                 >
                   {deleteLoadingState ? "Deleting..." : "Delete"}
                 </Button>

@@ -74,7 +74,6 @@ export const deleteFeatureImage = createAsyncThunk(
       if (!imageId) {
         return rejectWithValue({ message: "Image ID is required in deleteFeatureImage thunk" });
       }
-
       const response = await axios.delete(
         `http://localhost:3000/api/common/feature/delete/${imageId}`
       );
@@ -141,7 +140,7 @@ const commonSlice = createSlice({
         state.isLoading = false;
         state.error = null;
         state.featureImageList = state.featureImageList.filter(
-          (image) => image._id !== action.payload.data._id
+          (image) => image?._id !== action.payload.data._id
         );
       })
       .addCase(deleteFeatureImage.rejected, (state, action) => {

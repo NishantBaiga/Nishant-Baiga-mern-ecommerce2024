@@ -14,6 +14,7 @@ const addFeatureImage = async (req, res) => {
 
     res.status(201).json({
       success: true,
+      message: "Image Added Successfully",
       data: featureImages,
     });
   } catch (e) {
@@ -44,6 +45,9 @@ const getFeatureImages = async (req, res) => {
 
 const deleteFeatureImage = async (req, res) => {
   try {
+
+    console.log(req.params, "req.params");
+    
     const { id } = req.params;
     if (!id) {
       return res.status(400).json({

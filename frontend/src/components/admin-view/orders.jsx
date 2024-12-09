@@ -68,7 +68,7 @@ console.log(orderList,"orderList");
                   <TableCell>{order?.orderDate.split("T")[0]}</TableCell>
                   <TableCell>
                     <Badge
-                      className={`py-1 px-3 transition-colors hover:bg-opacity-80 ${
+                      className={`py-1 px-3 transition-colors hover:bg-opacity-80 capitalize ${
                         order?.orderStatus === "confirm"
                           ? "bg-green-500 text-white hover:bg-green-600"
                           : order?.orderStatus === "rejected"
