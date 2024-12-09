@@ -23,23 +23,52 @@ import { Badge } from "../ui/badge";
 
 const AdminOrdersViews = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-const {orderList, orderDetails} =useSelector((state) => state.adminOrder);
-const dispatch = useDispatch();
+  const [orderListSorted, setOrderListSorted] = useState([]);
+  const [sortType, setSortType] = useState("asc");
+  const [statusFilter, setStatusFilter] = useState(null); // For sub-status filtering
+  const { orderList, orderDetails } = useSelector((state) => state.adminOrder);
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(getAllOrdersForAdmin());
+  }, [dispatch]);
 
-function handleFecthOrderDetails(orderId) {
-  dispatch(getOrderDetailsForAdmin(orderId));
-}
-  
-useEffect(() => {
-  dispatch(getAllOrdersForAdmin());
-},[dispatch]);
+  useEffect(() => {
+    if (orderDetails !== null) setOpenDetailsDialog(true);
+  }, [orderDetails]);
 
-useEffect(() => {
-if(orderDetails !== null) setOpenDetailsDialog(true);
-}, [orderDetails]);
+  useEffect(() => {
+    if (orderList) {
+      let sortedOrderList = [...orderList];
+      if (sortType === "asc" || sortType === "desc") {
+        sortedOrderList.sort((a, b) =>
+          sortType === "asc"
+            ? new Date(a.orderDate) - new Date(b.orderDate)
+            : new Date(b.orderDate) - new Date(a.orderDate)
+        );
+      } else if (sortType === "status" && statusFilter) {
+        sortedOrderList = sortedOrderList.filter(
+          (order) => order.orderStatus.toLowerCase() === statusFilter
+        );
+      }
+      setOrderListSorted(sortedOrderList);
+    }
+  }, [orderList, sortType, statusFilter]);
 
-console.log(orderList,"orderList");
+  const handleFecthOrderDetails = (orderId) => {
+    dispatch(getOrderDetailsForAdmin(orderId));
+  };
+
+  const handleSortOrders = (e) => {
+    setSortType(e.target.value);
+    if (e.target.value !== "status") {
+      setStatusFilter(null); // Reset status filter when switching to date sorting
+    }
+  };
+
+  const handleStatusFilter = (e) => {
+    setStatusFilter(e.target.value);
+  };
 
   return (
     <Card>
@@ -48,11 +77,37 @@ console.log(orderList,"orderList");
         <CardDescription>Manage Orders</CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="flex justify-end mb-4 space-x-4">
+          <select
+            className="bg-transparent border-none outline-none capitalize text-sm font-semibold"
+            onChange={handleSortOrders}
+            value={sortType}
+          >
+            <option value="asc">Newest</option>
+            <option value="desc">Oldest</option>
+            <option value="status">Sort by Status</option>
+          </select>
+          {sortType === "status" && (
+            <select
+              className="bg-transparent border-none outline-none capitalize text-sm font-semibold"
+              onChange={handleStatusFilter}
+              value={statusFilter || ""}
+            >
+              <option value="">Select Status</option>
+              <option value="pending">Pending</option>
+              <option value="in process">In Process</option>
+              <option value="in shipping">In Shipping</option>
+              <option value="delivered">Delivered</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          )}
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Order Id</TableHead>
               <TableHead>Order Date</TableHead>
+              <TableHead>Order Time</TableHead>
               <TableHead>Order Status</TableHead>
               <TableHead>Order price</TableHead>
               <TableHead>
@@ -61,11 +116,18 @@ console.log(orderList,"orderList");
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orderList && orderList.length > 0 ? (
-              orderList.map((order) => (
-                <TableRow key={order?.id}>
+            {orderListSorted && orderListSorted.length > 0 ? (
+              orderListSorted.map((order) => (
+                <TableRow key={order?._id}>
                   <TableCell>{order?._id}</TableCell>
                   <TableCell>{order?.orderDate.split("T")[0]}</TableCell>
+                  <TableCell>
+                    {new Date(order?.orderDate).toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       className={`py-1 px-3 transition-colors hover:bg-opacity-80 capitalize ${
@@ -89,15 +151,12 @@ console.log(orderList,"orderList");
                       }}
                       className="fixed inset-0 z-[100]"
                     >
-                      <DialogContent className="m-auto max-w-[480px] w-full bg-white ">
-                        {/* <AdminOrderdetails views /> */}
+                      <DialogContent className="m-auto max-w-[480px] w-full bg-white">
                         <DialogTitle className="sr-only">
                           Order Details
                         </DialogTitle>
-                        <AdminOrderDetailsView  orderDetails={orderDetails} />
+                        <AdminOrderDetailsView orderDetails={orderDetails} />
                       </DialogContent>
-
-                      {/* <AdminOrderdetails views button /> */}
                       <DialogTrigger
                         asChild
                         onClick={() => handleFecthOrderDetails(order?._id)}
@@ -109,7 +168,7 @@ console.log(orderList,"orderList");
                 </TableRow>
               ))
             ) : (
-              <h1 className="text-center font-bold text-3xl">
+              <h1 className="text-center font-bold text-xl sm:text-2xl md:text-3xl sm:display-inline md:display-block">
                 No orders found
               </h1>
             )}
@@ -121,4 +180,3 @@ console.log(orderList,"orderList");
 };
 
 export default AdminOrdersViews;
-

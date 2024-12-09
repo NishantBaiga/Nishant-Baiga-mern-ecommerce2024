@@ -13,17 +13,24 @@ const payerId = params.get("PayerID");
 
 
 useEffect(()=>{
-if(paymentId && payerId){
-  const getCurrentOrderId = JSON.parse(localStorage.getItem("currentOrderId"));
-  dispatch(capturePayment({paymentId,payerId,orderId:getCurrentOrderId})).then((data)=>{
+
+  if (!paymentId || !payerId) {
+    window.location.href = '/shop/payment-failed';  // Redirect if required parameters are missing
+    return;
+  }
+  const orderId  = JSON.parse(sessionStorage.getItem("currentOrderId"));
+  dispatch(capturePayment({paymentId,payerId,orderId})).then((data)=>{
     if(data.payload?.success){
       sessionStorage.removeItem("currentOrderId");
       window.location.href="/shop/payment-success"
     }
+    // else{
+    //   window.location.href="/shop/payment-cancel"
+    // }
   });
-}
 
-},[paymentId,payerId,dispatch]);
+
+},[paymentId, payerId, dispatch]);
 
   return (
     <Card>

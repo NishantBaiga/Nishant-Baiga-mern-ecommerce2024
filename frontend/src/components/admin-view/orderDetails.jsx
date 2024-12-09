@@ -76,7 +76,7 @@ const AdminOrderDetailsView = ({ orderDetails }) => {
                   ? "bg-green-500"
                   : orderDetails?.orderStatus === "rejected"
                   ? "bg-red-600"
-                  : "bg-black text-white"
+                  : "bg-black text-white pointer-events-none "
               }`}
             >
               {orderDetails?.orderStatus}

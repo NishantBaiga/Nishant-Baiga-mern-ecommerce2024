@@ -147,8 +147,13 @@ const capturePayment = async (req, res) => {
   try {
     const { paymentId, payerId, orderId } = req.body;
 
-    let order = await orderModel.findById(orderId);
+    if (!paymentId || !payerId || !orderId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
 
+    let order = await orderModel.findById(orderId);
     if (!order) {
       return res
         .status(404)
@@ -200,6 +205,11 @@ const capturePayment = async (req, res) => {
 const getAllOrdersByUser = async (req, res) => {
   try {
     const { userId } = req.params;
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User id is required" });
+    }
     const orders = await orderModel.find({ userId });
     if (!orders) {
       return res
@@ -220,6 +230,11 @@ const getAllOrdersByUser = async (req, res) => {
 const getOrderDetails = async (req, res) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Order id is required" });
+    }
     const order = await orderModel.findById(id);
     if (!order) {
       return res

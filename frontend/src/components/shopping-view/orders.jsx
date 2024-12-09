@@ -32,14 +32,11 @@ import { Badge } from "../ui/badge";
 
 const ShoppingOrders = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [orderListSorted, setOrderListSorted] = useState([]);
+  const [sortType, setSortType] = useState("asc");
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { orderList, orderDetails } = useSelector((state) => state.shopOrder);
-
-
-  function handleFecthOrderDetails(orderId) {
-    dispatch(getOrderDetails(orderId));
-  }
 
   useEffect(() => {
     dispatch(getAllOrdersByUser(user?.id));
@@ -50,8 +47,25 @@ const ShoppingOrders = () => {
       setOpenDetailsDialog(true);
     }
   }, [orderDetails]);
-  // console.log(orderList, "orderList");
-  // console.log(orderDetails, "orderDetails");
+
+  useEffect(() => {
+    if (orderList) {
+      const sortedOrderList = [...orderList].sort((a, b) =>
+        sortType === "asc"
+          ? new Date(a.orderDate) - new Date(b.orderDate)
+          : new Date(b.orderDate) - new Date(a.orderDate)
+      );
+      setOrderListSorted(sortedOrderList);
+    }
+  }, [orderList, sortType]);
+
+  const handleFecthOrderDetails = (orderId) => {
+    dispatch(getOrderDetails(orderId));
+  };
+
+  const handleSortOrders = (e) => {
+    setSortType(e.target.value);
+  };
 
   return (
     <Card>
@@ -60,11 +74,22 @@ const ShoppingOrders = () => {
         <CardDescription>Manage your orders</CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="flex justify-end mb-4 ">
+          <select
+            className="bg-transparent border-none outline-none capitalize text-sm font-semibold"
+            onChange={handleSortOrders}
+            value={sortType}
+          >
+            <option value="asc">Sort By Date Ascending</option>
+            <option value="desc">Sort By Date Descending</option>
+          </select>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Order Id</TableHead>
               <TableHead>Order Date</TableHead>
+              <TableHead>Order Time</TableHead>
               <TableHead>Order Status</TableHead>
               <TableHead>Order price</TableHead>
               <TableHead>
@@ -73,14 +98,21 @@ const ShoppingOrders = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orderList && orderList.length > 0 ? (
-              orderList.map((order) => (
+            {orderListSorted && orderListSorted.length > 0 ? (
+              orderListSorted.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>{order?._id}</TableCell>
                   <TableCell>{order?.orderDate.split("T")[0]}</TableCell>
                   <TableCell>
+                    {new Intl.DateTimeFormat("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    }).format(new Date(order?.orderDate))}
+                  </TableCell>
+                  <TableCell>
                     <Badge
-                      className={`py-1 px-3 transition-colors hover:bg-opacity-80 ${
+                      className={`py-1 px-3 transition-colors hover:bg-opacity-80 capitalize ${
                         order?.orderStatus === "confirm"
                           ? "bg-green-500 text-white hover:bg-green-600"
                           : order?.orderStatus === "rejected"
@@ -106,7 +138,7 @@ const ShoppingOrders = () => {
                         <DialogTitle className="sr-only">
                           Order Details
                         </DialogTitle>
-                        <ShopOrderDetails  orderDetails={orderDetails} />
+                        <ShopOrderDetails orderDetails={orderDetails} />
                       </DialogContent>
 
                       {/* <ShopOrderdetails views button /> */}
@@ -133,3 +165,4 @@ const ShoppingOrders = () => {
 };
 
 export default ShoppingOrders;
+
