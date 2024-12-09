@@ -20,7 +20,6 @@ import AdminOrderDetailsView from "./orderDetails";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersForAdmin, getOrderDetailsForAdmin, resetOrderDetails } from "@/store/admin/order-slice";
 import { Badge } from "../ui/badge";
-import { use } from "react";
 
 const AdminOrdersViews = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -38,7 +37,7 @@ useEffect(() => {
 
 useEffect(() => {
 if(orderDetails !== null) setOpenDetailsDialog(true);
-}, [openDetailsDialog]);
+}, [orderDetails]);
 
 console.log(orderList,"orderList");
 
@@ -64,7 +63,7 @@ console.log(orderList,"orderList");
           <TableBody>
             {orderList && orderList.length > 0 ? (
               orderList.map((order) => (
-                <TableRow key={order.id}>
+                <TableRow key={order?.id}>
                   <TableCell>{order?._id}</TableCell>
                   <TableCell>{order?.orderDate.split("T")[0]}</TableCell>
                   <TableCell>
@@ -91,14 +90,14 @@ console.log(orderList,"orderList");
                       className="fixed inset-0 z-[100]"
                     >
                       <DialogContent className="m-auto max-w-[480px] w-full bg-white ">
-                        {/* <ShopOrderdetails views /> */}
+                        {/* <AdminOrderdetails views /> */}
                         <DialogTitle className="sr-only">
                           Order Details
                         </DialogTitle>
                         <AdminOrderDetailsView  orderDetails={orderDetails} />
                       </DialogContent>
 
-                      {/* <ShopOrderdetails views button /> */}
+                      {/* <AdminOrderdetails views button /> */}
                       <DialogTrigger
                         asChild
                         onClick={() => handleFecthOrderDetails(order?._id)}
