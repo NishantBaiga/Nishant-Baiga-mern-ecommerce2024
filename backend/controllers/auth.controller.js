@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-import dotenv, { parse } from "dotenv";
+import dotenv from "dotenv";
 dotenv.config();
 
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS);
@@ -39,12 +39,10 @@ const Register = async (req, res) => {
 //login
 const Login = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     if (!email ) {
       return res.status(400).json({ message: "email is required" });
     }
-    
     if (!password) {
       return res.status(400).json({ message: "password is required" });
     }

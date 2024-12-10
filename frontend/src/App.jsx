@@ -1,110 +1,121 @@
 import { Route, Routes } from "react-router-dom";
-import Authlayout from "./components/auth/layout";
-import AuthLogin from "./pages/auth/login";
-import AuthRegister from "./pages/auth/register";
-import AdminLayout from "./components/admin-view/layout";
-import AdminDashboard from "./pages/admin-view/dashboard";
-import AdminProducts from "./pages/admin-view/products";
-import AdminOrders from "./pages/admin-view/orders";
-import AdminFeatures from "./pages/admin-view/features";
-import ShoppingLayout from "./components/shopping-view/layout";
-import NotFound from "./pages/not-found";
-import ShoppingListing from "./pages/shopping-view/listing";
-import ShoppingCheckout from "./pages/shopping-view/checkout";
-import ShoppingHome from "./pages/shopping-view/home";
-import ShoppingAccount from "./pages/shopping-view/account";
-import CheckAuth from "./components/common/check-auth";
-import UnauthPage from "./pages/unauth-page";
+import { lazy, Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 import { checkAuth } from "./store/authSlice";
+import CheckAuth from "./components/common/check-auth";
 import { Skeleton } from "./components/ui/skeleton";
-import PaypalReturn from "./pages/shopping-view/paypal-return";
-import PaymentSuccess from "./pages/shopping-view/payment-success";
-import SearchProducts from "./pages/shopping-view/search";
+
+// Lazy-loaded components
+const Authlayout = lazy(() => import("./components/auth/layout"));
+const AuthLogin = lazy(() => import("./pages/auth/login"));
+const AuthRegister = lazy(() => import("./pages/auth/register"));
+const AdminLayout = lazy(() => import("./components/admin-view/layout"));
+const AdminDashboard = lazy(() => import("./pages/admin-view/dashboard"));
+const AdminProducts = lazy(() => import("./pages/admin-view/products"));
+const AdminOrders = lazy(() => import("./pages/admin-view/orders"));
+const AdminFeatures = lazy(() => import("./pages/admin-view/features"));
+const ShoppingLayout = lazy(() => import("./components/shopping-view/layout"));
+const ShoppingHome = lazy(() => import("./pages/shopping-view/home"));
+const ShoppingListing = lazy(() => import("./pages/shopping-view/listing"));
+const ShoppingCheckout = lazy(() => import("./pages/shopping-view/checkout"));
+const ShoppingAccount = lazy(() => import("./pages/shopping-view/account"));
+const NotFound = lazy(() => import("./pages/not-found"));
+const UnauthPage = lazy(() => import("./pages/unauth-page"));
+const PaypalReturn = lazy(() => import("./pages/shopping-view/paypal-return"));
+const PaymentSuccess = lazy(() =>
+  import("./pages/shopping-view/payment-success")
+);
+const SearchProducts = lazy(() => import("./pages/shopping-view/search"));
 
 function App() {
-  
-const{isAuthenticated, user, isLoading}= useSelector(state=>state.auth);
+  const { isAuthenticated, user, isLoading } = useSelector(
+    (state) => state.auth
+  );
 
-const dispatch =useDispatch();
+  const dispatch = useDispatch();
 
-useEffect(() => {
-  dispatch(checkAuth());
-}, [dispatch]);
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
 
-if(isLoading)return <div className="flex justify-center items-center h-screen w-full">
-  <Skeleton className="w-[800px] h-[600px] bg-black rounded-full" />
-  </div>
-
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-screen w-full">
+        <Skeleton className="w-full h-full bg-gray-200 " />
+      </div>
+    );
 
   return (
     <>
       <div className="flex flex-col min-h-screen w-full overflow-hidden bg-white">
-        <Routes>
-          {/* auth routes */}
+        <Suspense
+          fallback={<Skeleton className="w-full h-full bg-gray-200 " />}
+        >
+          <Routes>
+            {/* auth routes */}
 
-          <Route
-          path="/"
-          element={
-            <CheckAuth
-              isAuthenticated={isAuthenticated}
-              user={user}
-            ></CheckAuth>
-          }
-        />
-          
-          <Route
-            path="/auth"
-            element={
-              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                <Authlayout />
-              </CheckAuth>
-            }
-          >
-            <Route path="login" element={<AuthLogin />} />
-            <Route path="register" element={<AuthRegister />} />
-          </Route>
+            <Route
+              path="/"
+              element={
+                <CheckAuth
+                  isAuthenticated={isAuthenticated}
+                  user={user}
+                ></CheckAuth>
+              }
+            />
 
-          {/* admin routes */}
-          <Route
-            path="/admin"
-            element={
-              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                <AdminLayout />
-              </CheckAuth>
-            }
-          >
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="products" element={<AdminProducts />} />
-            <Route path="orders" element={<AdminOrders />} />
-            <Route path="features" element={<AdminFeatures />} />
-          </Route>
+            <Route
+              path="/auth"
+              element={
+                <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                  <Authlayout />
+                </CheckAuth>
+              }
+            >
+              <Route path="login" element={<AuthLogin />} />
+              <Route path="register" element={<AuthRegister />} />
+            </Route>
 
-          {/* shopview routes */}
-          <Route
-            path="/shop"
-            element={
-              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                <ShoppingLayout />
-              </CheckAuth>
-            }
-          >
-            <Route path="listing" element={<ShoppingListing />} />
-            <Route path="checkout" element={<ShoppingCheckout />} />
-            <Route path="home" element={<ShoppingHome />} />
-            <Route path="account" element={<ShoppingAccount />} />
-            <Route path="paypal-return" element={<PaypalReturn />} />
-            <Route path="paypal-success" element={<PaymentSuccess />} />
-            <Route path="search" element={<SearchProducts />} />
-          </Route>
-          
-          {/* unauthorized route */}
-          <Route path="/unauth-page" element={<UnauthPage />} />
+            {/* admin routes */}
+            <Route
+              path="/admin"
+              element={
+                <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                  <AdminLayout />
+                </CheckAuth>
+              }
+            >
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="features" element={<AdminFeatures />} />
+            </Route>
 
-          {/* 404 route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* shopview routes */}
+            <Route
+              path="/shop"
+              element={
+                <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                  <ShoppingLayout />
+                </CheckAuth>
+              }
+            >
+              <Route path="listing" element={<ShoppingListing />} />
+              <Route path="checkout" element={<ShoppingCheckout />} />
+              <Route path="home" element={<ShoppingHome />} />
+              <Route path="account" element={<ShoppingAccount />} />
+              <Route path="paypal-return" element={<PaypalReturn />} />
+              <Route path="paypal-success" element={<PaymentSuccess />} />
+              <Route path="search" element={<SearchProducts />} />
+            </Route>
+
+            {/* unauthorized route */}
+            <Route path="/unauth-page" element={<UnauthPage />} />
+
+            {/* 404 route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </div>
     </>
   );
