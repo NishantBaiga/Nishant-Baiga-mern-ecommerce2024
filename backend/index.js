@@ -7,7 +7,6 @@ import connectDB from "./config/configDb.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -38,10 +37,11 @@ app.use("/api/auth", authRoute);
 
 // admin routes
 import adminProductsRouter from "./routes/admin/products.route.js";
-app.use("/api/admin/products", adminProductsRouter);
-
 import adminOrderRouter from "./routes/admin/order.route.js";
+import adminUsersRouter from "./routes/admin/users.route.js";
+app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/orders", adminOrderRouter);
+app.use("/api/admin/users", adminUsersRouter);
 
 // shop routes
 import shopProductsRouter from "./routes/shop/products.route.js";
@@ -66,7 +66,7 @@ app.use("/api/shop/review", shopReviewRouter);
 import featureRouter from "./routes/features.route.js";
 app.use("/api/common/feature", featureRouter);
 
-app.listen(PORT, () => {
+app.listen( process.env.PORT, () => {
   connectDB();
-  console.log(`server is running on port ${PORT}`);
+  console.log(`server is running on port ${process.env.PORT}`);
 });

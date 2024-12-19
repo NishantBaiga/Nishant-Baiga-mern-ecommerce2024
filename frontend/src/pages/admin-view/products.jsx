@@ -144,6 +144,7 @@ function AdminProducts() {
         {productList && productList.length > 0
           ? productList.map((productItem) => (
               <AdminProductTile
+                key={productItem._id} // Unique key for each product tile
                 setFormData={setFormData} // Pass function to set form data
                 setOpenCreateProductsDialog={setOpenCreateProductsDialog} // Open dialog in edit mode
                 setCurrentEditedId={setCurrentEditedId} // Set current edited product ID

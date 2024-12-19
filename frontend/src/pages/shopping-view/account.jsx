@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import accountImage from "../../assets/images/account.jpg";
 import ShoppingOrders from "@/components/shopping-view/orders";
 import Address from "@/components/shopping-view/address";
+import EditProfile from "@/components/shopping-view/edit-profile";
 const ShoppingAccount = () => {
   return (
     <div className="flex flex-col">
@@ -17,6 +18,7 @@ const ShoppingAccount = () => {
           <TabsList>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="address">Address</TabsTrigger>
+            <TabsTrigger value="">Edit Profile</TabsTrigger>
           </TabsList>
           {/* shopping orders */}
           <TabsContent value="orders">
@@ -25,6 +27,10 @@ const ShoppingAccount = () => {
           {/* address */}
           <TabsContent value="address">
             <Address />
+          </TabsContent>
+          {/* edit profile */}
+          <TabsContent >
+            <EditProfile/>
           </TabsContent>
         </Tabs>
       </div>

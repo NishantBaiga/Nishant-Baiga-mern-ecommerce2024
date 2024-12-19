@@ -1,52 +1,117 @@
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import dotenv from "dotenv";
+import redisClient from "../config/redis.js";
 dotenv.config();
 
-const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS);
-// const JWT_SECRET =  process.env.JWT_SECRET;
+// generate tokens
+const generateTokens = (id) => {
+  try {
+    const accessToken = jwt.sign({ id }, process.env.JWT_SECRET, {
+      expiresIn: "15m",
+    });
+    const refreshToken = jwt.sign({ id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    return { accessToken, refreshToken };
+  } catch (error) {
+    console.log("error in generateTokens function", error.message);
+    throw error;
+  }
+};
+
+const storeRefreshToken = async (id, refreshToken) => {
+  try {
+    await redisClient.set(`${id}`, refreshToken, "EX", 7 * 24 * 60 * 60);
+  } catch (error) {
+    console.log("error in storeRefreshToken function", error.message);
+    throw error;
+  }
+};
+
+const setCookies = (res, accessToken, refreshToken) => {
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", //strict mode when in production
+    maxAge: 15 * 60 * 1000,
+  });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", //strict mode when in production
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+};
+
+const validatePassword = (password) => {
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  return passwordRegex.test(password);
+};
+
+
 
 //register
 const Register = async (req, res) => {
   const { name, email, password } = req.body;
-
   try {
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!name) {
+      return res.status(400).json({ message: "name is required" });
     }
-
-    const duplicate = await User.findOne({ email }).exec();
-    if (duplicate) {
-      return res.status(409).json({ message: "Email already exists" });
-    }
-
-    const hashedPwd = await bcrypt.hash(password, SALT_ROUNDS);
-
-    const userObject = new User({ name, email, password: hashedPwd });
-    const user = await userObject.save(userObject);
-
-    res.status(201).json({
-      message: `New user ${name} created successfully`,
-      success: true,
-    });
-  } catch (error) {
-    console.log("error in register controller", error.message);
-    res.status(500).json({ message: error.message, success: false });
-  }
-};
-
-//login
-const Login = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    if (!email ) {
+    if (!email) {
       return res.status(400).json({ message: "email is required" });
     }
     if (!password) {
       return res.status(400).json({ message: "password is required" });
     }
 
+    if (!validatePassword(password)) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.", success: false });
+    }
+
+    //  check if user exists
+    const duplicate = await User.findOne({ email }).exec();
+    if (duplicate) {
+      return res.status(409).json({ message: "Email already exists", success: false });
+    }
+    
+    //  create new user
+    const userObject = new User({ name, email, password });
+    const user = await userObject.save(userObject);
+    // generate tokens
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    await storeRefreshToken(user._id, refreshToken);
+    setCookies(res, accessToken, refreshToken);
+
+    res.status(201).json({
+      message: `New user ${name} created successfully`,
+      success: true,
+      user: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.log("error in register controller", error.message);
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+//login
+const Login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    if (!email) {
+      return res.status(400).json({ message: "email is required" });
+    }
+    if (!password) {
+      return res.status(400).json({ message: "password is required" });
+    }
+    // check if user exists
     const user = await User.findOne({ email }).exec();
     if (!user) {
       return res.status(404).json({
@@ -55,78 +120,62 @@ const Login = async (req, res) => {
       });
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    // check if password is correct
+    const match = await user.comparePassword(password);
     if (!match) {
       return res
         .status(401)
         .json({ message: "Invalid password try again", success: false });
     }
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        role: user.role,
-        email: user.email,
-        userName: user.name,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "60m" }
-    );
+    // generateTokens
+    const { accessToken, refreshToken } = generateTokens(user._id);
 
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: false,
-        // expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-        // sameSite: "none",
-      })
-      .status(201)
-      .json({
-        message: `New User logged in successfully`,
-        success: true,
-        user: {
-          email: user.email,
-          role: user.role,
-          id: user._id,
-          userName: user.name,
-        },
-      });
+    // store refreshToken in redis
+    await storeRefreshToken(user._id, refreshToken);
+
+    // set cookies
+    setCookies(res, accessToken, refreshToken);
+
+    res.status(201).json({
+      message: `New User logged in successfully`,
+      success: true,
+      user: {
+        id: user._id,
+        userName: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (error) {
     console.log("error in login controller:", error.message);
     res.status(500).json({ message: error.message, success: false });
   }
 };
-
 //logout
 const Logout = async (req, res) => {
-  res.clearCookie("token");
-  res.json({ message: "Logout successful", success: true });
-};
-
-//auth middleware
-const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
-
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized", success: false });
+    const token = req.cookies.refreshToken;
+    if (token) {
+      jwt.verify(token, process.env.JWT_SECRET);
+      await redisClient.del(req.user);
+    } else {
+      return res.status(401).json({
+        message: "Unauthorized - no access token provided",
+        success: false,
+      });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // const user = await User.findById(decoded.id);
-    // if (!user) {
-    //   return res
-    //     .status(401)
-    //     .json({ message: "invalid token", success: false });
-    // }
-
-    req.user = decoded;
-    next();
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.json({ message: "Logout successful", success: true });
   } catch (error) {
-    console.log("error in auth middleware:", error.message);
-    res.status(401).json({ message: error.message, success: false });
+    console.log("error in logout controller:", error.message);
+    res.status(500).json({ message: error.message, success: false });
   }
 };
 
-export { Register, Login, Logout, authMiddleware };
+
+
+
+export { Register, Login, Logout}; 

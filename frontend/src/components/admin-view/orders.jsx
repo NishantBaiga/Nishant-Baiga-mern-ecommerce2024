@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -15,7 +16,6 @@ import {
 } from "../ui/table";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { useEffect, useState } from "react";
 import AdminOrderDetailsView from "./orderDetails";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersForAdmin, getOrderDetailsForAdmin, resetOrderDetails } from "@/store/admin/order-slice";
@@ -26,6 +26,7 @@ const AdminOrdersViews = () => {
   const [orderListSorted, setOrderListSorted] = useState([]);
   const [sortType, setSortType] = useState("asc");
   const [statusFilter, setStatusFilter] = useState(null); // For sub-status filtering
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
   const { orderList, orderDetails } = useSelector((state) => state.adminOrder);
   const dispatch = useDispatch();
 
@@ -51,9 +52,15 @@ const AdminOrdersViews = () => {
           (order) => order.orderStatus.toLowerCase() === statusFilter
         );
       }
+      // Filter by search term
+      if (searchTerm) {
+        sortedOrderList = sortedOrderList.filter((order) =>
+          order._id.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
       setOrderListSorted(sortedOrderList);
     }
-  }, [orderList, sortType, statusFilter]);
+  }, [orderList, sortType, statusFilter, searchTerm]);
 
   const handleFecthOrderDetails = (orderId) => {
     dispatch(getOrderDetailsForAdmin(orderId));
@@ -76,8 +83,15 @@ const AdminOrdersViews = () => {
         <CardTitle>All Orders</CardTitle>
         <CardDescription>Manage Orders</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         <div className="flex justify-end mb-4 space-x-4">
+          <input
+            type="text"
+            placeholder="Search by Order ID"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-transparent border border-gray-300 rounded px-2 py-1"
+          />
           <select
             className="bg-transparent border-none outline-none capitalize text-sm font-semibold"
             onChange={handleSortOrders}
@@ -116,7 +130,8 @@ const AdminOrdersViews = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orderListSorted && orderListSorted.length > 0 ? (
+            {orderListSorted && orderListSorted.length > 0 ? 
+            (
               orderListSorted.map((order) => (
                 <TableRow key={order?._id}>
                   <TableCell>{order?._id}</TableCell>
@@ -151,7 +166,7 @@ const AdminOrdersViews = () => {
                       }}
                       className="fixed inset-0 z-[100]"
                     >
-                      <DialogContent className="m-auto max-w-[480px] w-full bg-white">
+                      <DialogContent className="m-auto max-w-[480px] w-full bg-white min-h-5">
                         <DialogTitle className="sr-only">
                           Order Details
                         </DialogTitle>

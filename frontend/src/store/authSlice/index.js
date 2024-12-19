@@ -5,6 +5,7 @@ const initialState = {
   isAuthenticated: false, // Track if the user is authenticated
   isLoading: true, // Track loading state during API requests
   user: null, // Store user data when authenticated
+  error: null, // Store error data when requests fail
 };
 
 // Thunk to handle user registration
@@ -89,10 +90,12 @@ export const checkAuth = createAsyncThunk("/auth/checkauth", async () => {
   }
 });
 
+
+
 // Create the auth slice
 const authslice = createSlice({
-  name: "auth", 
-  initialState, 
+  name: "auth",
+  initialState,
   reducers: {
     // Reducer to manually set the user (if needed for external operations)
     setUser: (state, action) => {
@@ -155,7 +158,8 @@ const authslice = createSlice({
         state.isLoading = false; // Ensure loading is false after logout
         state.user = null; // Clear user data after successful logout
         state.isAuthenticated = false; // Set authentication to false
-      });
+      })
+
   },
 });
 

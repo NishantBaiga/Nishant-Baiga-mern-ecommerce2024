@@ -13,13 +13,14 @@ This is an e-commerce website built using React, Redux, NodeJS, Express and Mong
 
 ## Features
 
+#### Users
 - User authentication
 - User can add products to cart
 - User can view cart items
 - User can place order
 - User can view order details
 - User can view order history
-
+#### Admin
 - Admin can add products
 - Admin can delete products
 - Admin can update products
@@ -27,6 +28,8 @@ This is an e-commerce website built using React, Redux, NodeJS, Express and Mong
 - Admin can view order details
 - Admin can fulfill orders
 - Admin can cancel orders
+- Admin can view all users
+- Admin can delete users
 - Admin can add, update and delete home slider image
 
 ## Tech Stack

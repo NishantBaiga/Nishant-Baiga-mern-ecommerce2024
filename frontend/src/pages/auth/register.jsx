@@ -16,26 +16,23 @@ function AuthRegister() {
   const [formData, setFormData] = useState(initialState);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {toast} = useToast();
+  const { toast } = useToast();
 
   function onSubmit(e) {
     e.preventDefault();
-    dispatch(register(formData))
-    .then((data) => {
+    dispatch(register(formData)).then((data) => {
       if (data?.payload?.success) {
         toast({
-          variant: "default",
-          title:data?.payload?.message,
+          title: data?.payload?.message,
+          className: "bg-white text-black",
         });
         navigate("/auth/login");
-      }  else {
+      } else {
         toast({
           title: data?.payload?.message,
-          variant: "destructive",
-        });}
-
-     
-
+          className: "bg-white text-black",
+        });
+      }
     });
   }
 

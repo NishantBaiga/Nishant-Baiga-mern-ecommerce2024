@@ -1,17 +1,18 @@
 import { Navigate, useLocation } from "react-router-dom";
 
-const CheckAuth = ({isAuthenticated, user, children}) => {
+const CheckAuth = ({ isAuthenticated, user, children }) => {
   const location = useLocation();
 
-
-  if(location.pathname ==="/"){
-    if(!isAuthenticated){
-      return <Navigate to="/auth/login" />
-    }else{
-      if(user?.role ==="admin"){
-        return <Navigate to="/admin/dashboard" />
-      }else{
-        return <Navigate to="/shop/home" />
+  //if the user is not authenticated and on the home page redirect them to the login page
+  // if the user is authenticated and admin then redirect them to the admin dashboard or shop dashboard
+  if (location.pathname === "/") {
+    if (!isAuthenticated) {
+      return <Navigate to="/auth/login" />;
+    } else {
+      if (user?.role === "admin") {
+        return <Navigate to="/admin/dashboard" />;
+      } else {
+        return <Navigate to="/shop/home" />;
       }
     }
   }
@@ -65,4 +66,3 @@ const CheckAuth = ({isAuthenticated, user, children}) => {
 };
 
 export default CheckAuth;
-

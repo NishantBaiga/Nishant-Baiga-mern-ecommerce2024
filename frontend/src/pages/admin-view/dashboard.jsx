@@ -58,6 +58,8 @@ function AdminDashboard() {
 
   return (
     <div>
+
+      
       <ProductImageUpload
         imageFile={imageFile}
         setImageFile={setImageFile}
@@ -69,12 +71,12 @@ function AdminDashboard() {
         // isEditMode={currentEditedId !== null}
       />
       <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">
-        Upload
+        Upload 
       </Button>
-      <div className="flex flex-col gap-4 mt-10">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-10">
         {featureImageList && featureImageList.length > 0
           ? featureImageList.map((featureImgItem) => (
-              <div className="relative" key={featureImgItem.id}>
+              <div className="relative" key={featureImgItem._id}>
                 <img
                   src={featureImgItem.image}
                   className="w-full h-[300px] object-cover rounded-t-lg"
@@ -96,3 +98,4 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard;
+

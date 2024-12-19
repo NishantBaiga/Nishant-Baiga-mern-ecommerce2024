@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { checkAuth } from "./store/authSlice";
 import CheckAuth from "./components/common/check-auth";
 import { Skeleton } from "./components/ui/skeleton";
+import AllUsersList from "./components/admin-view/all-users-list";
 
 // Lazy-loaded components
 const Authlayout = lazy(() => import("./components/auth/layout"));
@@ -89,6 +90,7 @@ function App() {
               <Route path="products" element={<AdminProducts />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="features" element={<AdminFeatures />} />
+              <Route path="users" element={<AllUsersList />} />
             </Route>
 
             {/* shopview routes */}

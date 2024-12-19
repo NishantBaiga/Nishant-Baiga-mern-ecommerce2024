@@ -1,3 +1,8 @@
 {
-    "breadcrumbs.enabled": true
+    "breadcrumbs.enabled": true,
+    "editor.cursorBlinking": "blink",
+    "files.autoSave": "onFocusChange",
+    "editor.fontSize": 18,
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
