@@ -1,3 +1,4 @@
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -14,11 +15,11 @@ function AdminDashboard() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [deleteLoadingState, setDeleteLoadingState] = useState(false);
+  const [currentDeleteId, setCurrentDeleteId] = useState(null);
+
   const dispatch = useDispatch();
   const { featureImageList } = useSelector((state) => state.commonFeature);
   const { toast } = useToast();
-
-  // console.log(uploadedImageUrl, "uploadedImageUrl");
 
   function handleUploadFeatureImage() {
     dispatch(addFeatureImage(uploadedImageUrl)).then((data) => {
@@ -35,10 +36,12 @@ function AdminDashboard() {
   }
 
   function handleDeleteFeatureImage(id) {
-    console.log(id, "id");
-    
+    setCurrentDeleteId(id);
+  }
+
+  function handleConfirmDeleteFeatureImage() {
     setDeleteLoadingState(true);
-    dispatch(deleteFeatureImage(id)).then((data) => {
+    dispatch(deleteFeatureImage(currentDeleteId)).then((data) => {
       if (data?.payload?.success) {
         toast({
           title: data?.payload?.message,
@@ -47,6 +50,7 @@ function AdminDashboard() {
         dispatch(getFeatureImages());
       }
       setDeleteLoadingState(false);
+      setCurrentDeleteId(null);
     });
   }
 
@@ -54,12 +58,8 @@ function AdminDashboard() {
     dispatch(getFeatureImages());
   }, [dispatch]);
 
-  console.log(featureImageList, "featureImageList");
-
   return (
     <div>
-
-      
       <ProductImageUpload
         imageFile={imageFile}
         setImageFile={setImageFile}
@@ -68,10 +68,9 @@ function AdminDashboard() {
         setImageLoadingState={setImageLoadingState}
         imageLoadingState={imageLoadingState}
         isCustomStyling={true}
-        // isEditMode={currentEditedId !== null}
       />
       <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">
-        Upload 
+        Upload
       </Button>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-10">
         {featureImageList && featureImageList.length > 0
@@ -81,14 +80,43 @@ function AdminDashboard() {
                   src={featureImgItem.image}
                   className="w-full h-[300px] object-cover rounded-t-lg"
                 />
-                <Button
-                  onClick={() => handleDeleteFeatureImage(featureImgItem?._id)}
-                  className="w-full mt-2"
-                  disabled={deleteLoadingState}
-                  variant="outline"
+                <Dialog
+                  open={currentDeleteId === featureImgItem._id}
+                  onOpenChange={(isOpen) => {
+                    if (!isOpen) setCurrentDeleteId(null);
+                  }}
                 >
-                  {deleteLoadingState ? "Deleting..." : "Delete"}
-                </Button>
+                  <DialogTrigger asChild>
+                    <Button
+                      onClick={() => handleDeleteFeatureImage(featureImgItem._id)}
+                      className="w-full mt-2"
+                      disabled={deleteLoadingState}
+                      variant="outline"
+                    >
+                      {deleteLoadingState ? "Deleting..." : "Delete"}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="w-[400px] bg-white p-5 rounded-lg">
+                    <DialogTitle>Confirm Delete Feature Image</DialogTitle>
+                    <div className="mt-4">
+                      Are you sure you want to delete this feature image?
+                    </div>
+                    <div className="mt-5 text-right">
+                      <Button
+                        onClick={() => setCurrentDeleteId(null)}
+                        className="mr-2"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleConfirmDeleteFeatureImage}
+                        variant="danger"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             ))
           : null}
@@ -98,4 +126,3 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard;
-

@@ -35,32 +35,33 @@ app.use(
 import authRoute from "./routes/auth.route.js";
 app.use("/api/auth", authRoute);
 
-// admin routes
+// importing admin routes
 import adminProductsRouter from "./routes/admin/products.route.js";
 import adminOrderRouter from "./routes/admin/order.route.js";
 import adminUsersRouter from "./routes/admin/users.route.js";
+
+// using admin routes
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/admin/users", adminUsersRouter);
 
-// shop routes
+// importing shop routes
 import shopProductsRouter from "./routes/shop/products.route.js";
-app.use("/api/shop/products", shopProductsRouter);
-
 import shopCartRouter from "./routes/shop/cart.route.js";
-app.use("/api/shop/cart", shopCartRouter);
-
 import shopAddressRouter from "./routes/shop/address.route.js";
-app.use("/api/shop/address", shopAddressRouter);
-
 import shopOrderRouter from "./routes/shop/order.route.js";
-app.use("/api/shop/order", shopOrderRouter);
-
 import shopSearchRouter from "./routes/shop/search.route.js";
-app.use("/api/shop/search", shopSearchRouter);
-
 import shopReviewRouter from "./routes/shop/review.route.js";
+import shopManageProfileRouter from "./routes/shop/handleProfile.route.js"; 
+
+// using shop routes
+app.use("/api/shop/products", shopProductsRouter);
+app.use("/api/shop/cart", shopCartRouter);
+app.use("/api/shop/address", shopAddressRouter);
+app.use("/api/shop/order", shopOrderRouter);
+app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
+app.use("/api/shop/profile", shopManageProfileRouter);
 
 // common routes
 import featureRouter from "./routes/features.route.js";

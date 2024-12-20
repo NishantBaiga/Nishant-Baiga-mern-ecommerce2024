@@ -18,7 +18,7 @@ const ShoppingAccount = () => {
           <TabsList>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="address">Address</TabsTrigger>
-            <TabsTrigger value="">Edit Profile</TabsTrigger>
+            <TabsTrigger value="editProfile">Edit Profile</TabsTrigger>
           </TabsList>
           {/* shopping orders */}
           <TabsContent value="orders">
@@ -29,7 +29,7 @@ const ShoppingAccount = () => {
             <Address />
           </TabsContent>
           {/* edit profile */}
-          <TabsContent >
+          <TabsContent value="editProfile"> 
             <EditProfile/>
           </TabsContent>
         </Tabs>

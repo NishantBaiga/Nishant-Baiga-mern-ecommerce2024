@@ -21,6 +21,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ * Creates a query string based on the given filter parameters.
+ * @param {Object} filterParams - Filter parameters to convert to query string.
+ * @returns {string} - Query string of the given filter parameters.
+ */
 function createSearchParamsHelper(filterParams) {
   let queryParams = [];
   for (const [key, value] of Object.entries(filterParams)) {
@@ -29,9 +34,7 @@ function createSearchParamsHelper(filterParams) {
       queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
     }
   }
-
-  // console.log(queryParams, "queryParams");
-
+  console.log(queryParams, "queryParams");
   return queryParams.join("&");
 }
 
@@ -40,20 +43,13 @@ const ShoppingListing = () => {
   const { productList, productDetails } = useSelector(
     (state) => state.shopProducts
   );
-
   const { cartItems } = useSelector((state) => state.shopCart);
-
+  const { user } = useSelector((state) => state.auth);
   const [filters, setfilters] = useState({});
   const [sort, setsort] = useState(null);
-
   const [searchParams, setSearchParams] = useSearchParams();
-
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-
-  const { user } = useSelector((state) => state.auth);
-
   const { toast } = useToast();
-
   const categorySearchParams = searchParams.get("category");
 
   const handleSort = (value) => {
@@ -96,7 +92,7 @@ const ShoppingListing = () => {
       );
       if (indexOfCurrentItem > -1) {
         const getQuantity = getCartItems[indexOfCurrentItem].quantity;
-        
+
         if (getQuantity + 1 > getTotalStock) {
           toast({
             title: `Only ${getQuantity} items can be added for this product`,
@@ -126,11 +122,26 @@ const ShoppingListing = () => {
   }
 
   // run once to set initial state
+  // This useEffect hook runs once when the component mounts, and it sets the
+  // initial state of the sort and filters variables. It also sets the filters
+  // in session storage to an empty object if the user has not set any filters
+  // yet.
   useEffect(() => {
     setsort("price-lowtohigh");
     setfilters(JSON.parse(sessionStorage.getItem("filters")) || {});
   }, [categorySearchParams]);
-
+  // When the filters change, we need to update the URL query string so that
+  // when the user refreshes the page, the same filters are applied. This is
+  // done by creating a query string from the filters object and then setting
+  // the search params to that query string. If there are no filters, we set
+  // the search params to an empty object. This is done in a useEffect hook so
+  // that it runs every time the filters change.
+  useEffect(() => {
+    if (filters && Object.keys(filters).length > 0) {
+      const createQueryString = createSearchParamsHelper(filters);
+      setSearchParams(new URLSearchParams(createQueryString));
+    }
+  }, [filters]);
   // run when filter changes
   // When the filters change, we need to update the URL query string so that
   // when the user refreshes the page, the same filters are applied. This is
@@ -144,8 +155,7 @@ const ShoppingListing = () => {
         fetchAllFilteredProducts({ filterParams: filters, sortParams: sort })
       );
   }, [dispatch, sort, filters]);
-
-  // run when product details changes
+  // Open the details dialog whenever product details are updated
   useEffect(() => {
     if (productDetails !== null) {
       setOpenDetailsDialog(true);
@@ -153,8 +163,8 @@ const ShoppingListing = () => {
   }, [productDetails]);
 
   console.log(productList, "productList");
-  //console.log("filter", filters);
-  //console.log("sort", sort);
+  console.log("filter", filters);
+  // console.log("sort", sort);
   //console.log(searchParams, "searchParams");
   //console.log(productDetails, "productDetails");
 
@@ -162,13 +172,12 @@ const ShoppingListing = () => {
     <div className="grid grid-cols-1 md:grid-cols-[135px_1fr] gap-6 p-4 md:p-6 ">
       {/* filters */}
       <ProductFilter handleFilter={handleFilter} filters={filters} />
-
       {/* sort and products */}
       <div className="bg-background rounded-lg w-full shadow-md">
         <div className="flex items-center justify-between p-4 border-b ">
           <h2 className="text-lg font-semibold">Products</h2>
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">10 products</span>
+            <span className="text-muted-foreground">{productList?.length}</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -215,7 +224,6 @@ const ShoppingListing = () => {
             : null}
         </div>
       </div>
-
       {/* product details */}
       <ProductDetails
         open={openDetailsDialog}

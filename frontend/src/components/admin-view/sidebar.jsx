@@ -1,6 +1,7 @@
 import {
   BadgeCheck,
   ChartNoAxesCombined,
+  DatabaseZapIcon,
   LayoutDashboard,
   ShoppingBasket,
   User,
@@ -33,6 +34,12 @@ const AdminSidebarMenuItems = [
     label: "Users",
     path: "/admin/users",
     icon: <User/>,
+  },
+  {
+    id: "analytics",
+    label: "Analytics",
+    path: "/admin/analytics",
+    icon: <DatabaseZapIcon/>,
   },
 ];
 

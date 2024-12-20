@@ -5,6 +5,7 @@ import { checkAuth } from "./store/authSlice";
 import CheckAuth from "./components/common/check-auth";
 import { Skeleton } from "./components/ui/skeleton";
 import AllUsersList from "./components/admin-view/all-users-list";
+import Analytics from "./pages/admin-view/analaytics";
 
 // Lazy-loaded components
 const Authlayout = lazy(() => import("./components/auth/layout"));
@@ -91,6 +92,7 @@ function App() {
               <Route path="orders" element={<AdminOrders />} />
               <Route path="features" element={<AdminFeatures />} />
               <Route path="users" element={<AllUsersList />} />
+              <Route path="analytics" element={<Analytics />} />
             </Route>
 
             {/* shopview routes */}

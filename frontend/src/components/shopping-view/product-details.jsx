@@ -191,11 +191,11 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
           <div className="max-h-[300px] overflow-auto">
             <h2 className="text-xl font-bold mb-4 ">Reviews</h2>
             <div className="grid gap-6">
-              {reviewList && reviewList.length > 0 ? 
-                reviewList.map(reviewItem => (
-                  <div className="flex gap-4">
+              {reviewList && reviewList?.data?.length > 0 ? (
+                reviewList?.data?.map((reviewItem) => (
+                  <div className="flex gap-4" key={reviewItem._id}>
                     <Avatar className="w-10 h-10 border">
-                      <AvatarFallback>
+                      <AvatarFallback className="text-black border border-black">
                         {reviewItem?.userName?.[0]?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
@@ -216,7 +216,7 @@ const ProductDetails = ({ open, setOpen, ProductDetails }) => {
                     </div>
                   </div>
                 ))
-               : (
+              ) : (
                 <h1>No Reviews</h1>
               )}
             </div>
