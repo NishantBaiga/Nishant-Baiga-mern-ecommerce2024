@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+console.log(import.meta.env.VITE_API_URL, "import.meta.env.VITE_API_URL");
+
 const initialState = {
   isAuthenticated: false, // Track if the user is authenticated
   isLoading: true, // Track loading state during API requests
@@ -18,7 +20,7 @@ export const register = createAsyncThunk("auth/register", async (formData) => {
         .json({ message: "Form data is required in register thunk" });
     }
     const response = await axios.post(
-      "http://localhost:3000/api/auth/register",
+      `${import.meta.env.VITE_API_URL}/auth/register`,
       formData, // Data passed to the registration request (name, email, password)
       { withCredentials: true } // Ensures cookies are included for authentication
     );
@@ -42,10 +44,11 @@ export const login = createAsyncThunk("auth/login", async (formData) => {
     }
 
     const response = await axios.post(
-      "http://localhost:3000/api/auth/login",
+      `${import.meta.env.VITE_API_URL}/auth/login`,
       formData, // Data passed to the login request (email, password)
       { withCredentials: true } // Ensures cookies are included for authentication
     );
+
     console.log(response, "login thunk response");
     return response.data;
   } catch (error) {
@@ -58,7 +61,7 @@ export const login = createAsyncThunk("auth/login", async (formData) => {
 export const logoutUser = createAsyncThunk("/auth/logout", async () => {
   try {
     const response = await axios.post(
-      "http://localhost:3000/api/auth/logout",
+      `${import.meta.env.VITE_API_URL}/auth/logou1`,
       {}, // Empty payload for the logout request
       { withCredentials: true } // Ensures cookies are included for session termination
     );
@@ -73,7 +76,7 @@ export const logoutUser = createAsyncThunk("/auth/logout", async () => {
 export const checkAuth = createAsyncThunk("/auth/checkauth", async () => {
   try {
     const response = await axios.get(
-      "http://localhost:3000/api/auth/check-auth",
+      `${import.meta.env.VITE_API_URL}/auth/check-auth`,
       {
         withCredentials: true, // Ensures cookies are included to verify session
         headers: {
@@ -89,8 +92,6 @@ export const checkAuth = createAsyncThunk("/auth/checkauth", async () => {
     res.status(500).json({ message: error.message, success: false });
   }
 });
-
-
 
 // Create the auth slice
 const authslice = createSlice({
@@ -158,8 +159,7 @@ const authslice = createSlice({
         state.isLoading = false; // Ensure loading is false after logout
         state.user = null; // Clear user data after successful logout
         state.isAuthenticated = false; // Set authentication to false
-      })
-
+      });
   },
 });
 

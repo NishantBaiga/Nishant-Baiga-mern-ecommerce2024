@@ -6,7 +6,9 @@ dotenv.config();
 //auth middleware
 const protectedRoute = async (req, res, next) => {
     try {
-      // console.log(req.cookies, "cookies in auth middleware");
+      console.log(req.cookies.accessToken, "cookies in auth middleware");
+      // console.log(req.headers, "headers in auth middleware");
+      
       const token = req.cookies.accessToken;
       // console.log(token, "token in auth middleware");
       if (!token) {
@@ -15,13 +17,10 @@ const protectedRoute = async (req, res, next) => {
           success: false,
         });
       }
-  
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       // console.log(decoded, "decoded in auth middleware");
-  
       const user = await User.findById(decoded._id).select("-password").exec();
       // console.log(user, "user in auth middleware");
-  
       if (!user) {
         return res
           .status(401)

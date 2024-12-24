@@ -1,6 +1,8 @@
 import orderModel from "../../models/orders.model.js";
 import paypal from "../../config/paypal.js";
 import cartModel from "../../models/cart.model.js";
+import dotenv from "dotenv";
+dotenv.config();
 const createOrder = async (req, res) => {
   try {
     const {
@@ -81,8 +83,8 @@ const createOrder = async (req, res) => {
           payment_method: "paypal",
         },
         redirect_urls: {
-          return_url: "http://localhost:3000/shop/paypal-return",
-          cancel_url: "http://localhost:3000/shop/paypal-cancel",
+          return_url: `${process.env.FRONTEND_URL}/shop/paypal-return`,
+          cancel_url: `${process.env.FRONTEND_URL}/shop/paypal-cancel`,
         },
         transactions: [
           {
@@ -168,12 +170,10 @@ const capturePayment = async (req, res) => {
     for (let item of order.cartItems) {
       let product = await productModel.findById(item.productId);
       if (!product) {
-        return res
-          .status(404)
-          .json({
-            success: false,
-            message: `Not Enough Stock ${product.title}`,
-          });
+        return res.status(404).json({
+          success: false,
+          message: `Not Enough Stock ${product.title}`,
+        });
       }
 
       product.totalstock -= item.quantity;

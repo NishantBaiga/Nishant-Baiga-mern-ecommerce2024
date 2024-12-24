@@ -5,16 +5,11 @@ import cors from "cors";
 import connectDB from "./config/configDb.js";
 
 dotenv.config();
-
 const app = express();
-
-app.use(express.json());
-app.use(cookieParser());
-
 // using cors connect backend with frontend
 app.use(
   cors({
-    origin: ["http://localhost:5173"], //frontend url
+    origin: [process.env.FRONTEND_URL], //frontend url
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: [
       "Content-Type",
@@ -28,9 +23,10 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.json());
+app.use(cookieParser());
 
 //importing routes
-
 // auth route
 import authRoute from "./routes/auth.route.js";
 app.use("/api/auth", authRoute);

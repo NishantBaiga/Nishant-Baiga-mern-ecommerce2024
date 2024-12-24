@@ -12,7 +12,7 @@ export const getUserProfile = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/shop/profile/get/${userId}`
+        `${import.meta.env.VITE_API_URL}/shop/profile/get/${userId}`
       );
       console.log(response, "get user profile thunk response");
       return response.data;
@@ -34,7 +34,7 @@ const updateUserProfile = createAsyncThunk(
   async (user, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/shop/profile/update`,
+        `${import.meta.env.VITE_API_URL}/shop/profile/update`,
         user
       );
       console.log(response, "update user profile thunk response");

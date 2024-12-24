@@ -12,7 +12,7 @@ export const getFeatureImages = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/common/feature/get"
+        `${import.meta.env.VITE_API_URL}/common/feature/get`
       );
       console.log(response, "getFeatureImages thunk response");
       return response.data;
@@ -42,7 +42,7 @@ export const addFeatureImage = createAsyncThunk(
         return rejectWithValue({ message: "Image data is required in addFeatureImage thunk" });
       }
       const response = await axios.post(
-        "http://localhost:3000/api/common/feature/add",
+        `${import.meta.env.VITE_API_URL}/common/feature/add`,
         { image }
       );
       console.log(response, "addFeatureImage thunk response");
@@ -75,7 +75,7 @@ export const deleteFeatureImage = createAsyncThunk(
         return rejectWithValue({ message: "Image ID is required in deleteFeatureImage thunk" });
       }
       const response = await axios.delete(
-        `http://localhost:3000/api/common/feature/delete/${imageId}`
+        `${import.meta.env.VITE_API_URL}/common/feature/delete/${imageId}`
       );
       console.log(response, "deleteFeatureImage thunk response");
       return response.data;

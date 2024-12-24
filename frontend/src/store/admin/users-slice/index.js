@@ -10,7 +10,7 @@ const initialState = {
 export const getAllUsers = createAsyncThunk("/users/getAllUsers", async () => {
   try {
     const response = await axios.get(
-      "http://localhost:3000/api/admin/users/fetchAllUsers"
+      `${import.meta.env.VITE_API_URL}/admin/users/fetchAllUsers`
     );
     return response.data;
   } catch (error) {
@@ -21,7 +21,7 @@ export const getAllUsers = createAsyncThunk("/users/getAllUsers", async () => {
 export const deleteUser = createAsyncThunk("/users/deleteUser", async (id) => {
   try {
     const response = await axios.delete(
-      `http://localhost:3000/api/admin/users/deleteUser/${id}`
+      `${import.meta.env.VITE_API_URL}/admin/users/deleteUser/${id}`
     );
     return response.data;
   } catch (error) {

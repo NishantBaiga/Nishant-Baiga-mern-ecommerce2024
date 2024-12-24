@@ -4,11 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const getUserProfile = async (req, res) => {
   try {
-    const userId = req.user._id;
-    if (!userId) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(req.user._id).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -25,11 +21,7 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
-    const userId = req.user._id;
-    if (!userId) {
-      return res.status(404).json({ message: "User id not provided" });
-    }
-    const user = await User.findById(userId);
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -39,13 +31,13 @@ const updateUserProfile = async (req, res) => {
     user.address = req.body.address || user.address;
     user.city = req.body.city || user.city;
     user.pincode = req.body.pincode || user.pincode;
-    await user.save();
+    const updatedUser = await user.save();
     res
       .status(200)
       .json({
         message: "User profile updated successfully",
         success: true,
-        user,
+        user: updatedUser,
       });
   } catch (error) {
     console.log("error in update user profile controller", error);

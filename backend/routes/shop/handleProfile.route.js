@@ -1,10 +1,10 @@
 import express from "express";
 import { getUserProfile, updateUserPassword, updateUserProfile } from "../../controllers/shop/handeProfile.controller.js";
-
+import { protectedRoute } from "../../middlewares/auth.middleware.js";
 const router = express.Router();
 
-router.get("/get/:id", getUserProfile);
-router.put("/update", updateUserProfile);
+router.get("/get",protectedRoute, getUserProfile);
+router.put("/update",protectedRoute, updateUserProfile);
 router.put("/password", updateUserPassword);
 
 // router.get('/reviews/:id', getUserReviewById);

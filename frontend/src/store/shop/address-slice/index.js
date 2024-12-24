@@ -18,7 +18,7 @@ export const addAddress = createAsyncThunk(
       }
 
       const response = await axios.post(
-        "http://localhost:3000/api/shop/address/add",
+        `${import.meta.env.VITE_API_URL}/shop/address/add`,
         formData
       );
 
@@ -51,7 +51,7 @@ export const fetchAddresses = createAsyncThunk(
         );
       }
       const response = await axios.get(
-        `http://localhost:3000/api/shop/address/get/${userId}`
+        `${import.meta.env.VITE_API_URL}/shop/address/get/${userId}`
       );
       console.log(response, "fetch addresses thunk response");
 
@@ -87,7 +87,7 @@ export const editAddress = createAsyncThunk(
         );
       }
       const response = await axios.put(
-        `http://localhost:3000/api/shop/address/update/${userId}/${addressId}`,
+        `${import.meta.env.VITE_API_URL}/shop/address/update/${userId}/${addressId}`,
         formData
       );
       console.log(response, "edit address thunk response");
@@ -122,7 +122,7 @@ export const deleteAddress = createAsyncThunk(
         );
       }
       const response = await axios.delete(
-        `http://localhost:3000/api/shop/address/delete/${userId}/${addressId}`
+        `${import.meta.env.VITE_API_URL}/shop/address/delete/${userId}/${addressId}`
       );
       console.log(response, "delete address thunk response");
 
